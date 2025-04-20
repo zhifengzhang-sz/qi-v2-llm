@@ -14,7 +14,7 @@ Each environment is containerized, allowing for consistent development experienc
 ## Directory Structure
 
 ```
-multi-lang-devcontainers/
+qi-v2-llm/
 ├── .devcontainer/                 # Devcontainer configurations
 │   ├── devcontainer.json          # Root devcontainer config
 │   ├── docker-compose.yml         # Orchestration for all containers

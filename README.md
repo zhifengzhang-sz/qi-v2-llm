@@ -5,7 +5,7 @@ This project provides a multi-language development environment using Docker cont
 ## Project Structure
 
 ```
-multi-lang-devcontainers
+qi-v2-llm
 ├── .devcontainer
 │   ├── devcontainer.json
 │   ├── docker-compose.yml
@@ -41,7 +41,7 @@ To set up the development environment, follow these steps:
 1. **Clone the repository:**
    ```
    git clone <repository-url>
-   cd multi-lang-devcontainers
+   cd qi-v2-llm
    ```
 
 2. **Open the project in your code editor.**
