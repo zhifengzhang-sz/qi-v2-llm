@@ -1,0 +1,13 @@
+{
+  "name": "TeX Live Development Container",
+  "dockerFile": "Dockerfile",
+  "workspaceFolder": "/workspace",
+  "extensions": [
+    "James-Yu.latex-workshop"
+  ],
+  "settings": {
+    "latex-workshop.latex.autoBuild.run": "onFileChange",
+    "latex-workshop.view.pdf.viewer": "tab"
+  },
+  "postCreateCommand": "tlmgr install scheme-full"
+}

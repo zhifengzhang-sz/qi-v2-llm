@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  typescript:
+    build:
+      context: ./typescript
+      dockerfile: Dockerfile
+    volumes:
+      - ../typescript-workspace:/workspace
+    working_dir: /workspace
+    command: ["npm", "start"]
+
+  python:
+    build:
+      context: ./python
+      dockerfile: Dockerfile
+    volumes:
+      - ../python-workspace:/workspace
+    working_dir: /workspace
+    command: ["python", "src/main.py"]
+
+  texlive:
+    build:
+      context: ./texlive
+      dockerfile: Dockerfile
+    volumes:
+      - ../texlive-workspace:/workspace
+    working_dir: /workspace
+    command: ["pdflatex", "src/main.tex"]

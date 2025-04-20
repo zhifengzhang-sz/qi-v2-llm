@@ -1,0 +1,15 @@
+{
+  "name": "Multi-Language Development Containers",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "typescript",
+  "workspaceFolder": "/workspace",
+  "settings": {
+    "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib"
+  },
+  "extensions": [
+    "ms-vscode.vscode-typescript-tslint-plugin",
+    "ms-python.python",
+    "James-Yu.latex-workshop"
+  ],
+  "postCreateCommand": "npm install"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "TypeScript Development Container",
+  "dockerFile": "Dockerfile",
+  "context": "..",
+  "workspaceFolder": "/workspace/typescript-workspace",
+  "extensions": [
+    "ms-vscode.vscode-typescript-tslint-plugin",
+    "esbenp.prettier-vscode"
+  ],
+  "settings": {
+    "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib"
+  },
+  "postCreateCommand": "npm install",
+  "remoteUser": "node"
+}
