@@ -1,0 +1,16 @@
+{
+    "name": "multi-language-dev-containers",
+    "version": "1.0.0",
+    "description": "Multi-language development environment with VS Code DevContainers",
+    "scripts": {
+      "setup": "chmod +x .devcontainer/setup.sh && ./.devcontainer/setup.sh",
+      "docker:china": "chmod +x ~/docker-china-mode.sh && ~/docker-china-mode.sh",
+      "docker:global": "chmod +x ~/docker-global-mode.sh && ~/docker-global-mode.sh",
+      "build": "cd .devcontainer && docker-compose build",
+      "start": "cd .devcontainer && docker-compose up -d",
+      "stop": "cd .devcontainer && docker-compose down",
+      "python": "cd .devcontainer && docker-compose run --rm python zsh",
+      "typescript": "cd .devcontainer && docker-compose run --rm typescript zsh",
+      "texlive": "cd .devcontainer && docker-compose run --rm texlive zsh"
+    }
+  }

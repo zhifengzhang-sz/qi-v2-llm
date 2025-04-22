@@ -1,261 +1,201 @@
-# Multi-Language Development Environment with VS Code Devcontainers
+# Multi-Language Development Environment with VS Code DevContainers
 
-This repository contains a development environment setup using VS Code's devcontainers feature, allowing you to work with multiple programming languages in isolated environments.
+This document provides detailed information about the DevContainer setup for this multi-language development environment.
 
 ## Overview
 
-The setup includes separate development environments for:
-- **TypeScript**: For JavaScript/TypeScript development
-- **Python**: For Python development
-- **TeXLive**: For LaTeX document preparation
+Our DevContainer configuration creates isolated development environments for three distinct programming ecosystems:
 
-Each environment is containerized, allowing for consistent development experiences across team members without conflicting dependencies.
+- **TypeScript**: JavaScript/TypeScript development with Node.js
+- **Python**: Python 3.10+ development with enhanced shell experience
+- **TeXLive**: LaTeX document preparation
 
-## Directory Structure
+Each environment is containerized to provide consistent development experiences regardless of the host system.
 
-```
-qi-v2-llm/
-├── .devcontainer/                 # Devcontainer configurations
-│   ├── devcontainer.json          # Root devcontainer config
-│   ├── docker-compose.yml         # Orchestration for all containers
-│   ├── typescript/                # TypeScript container config
-│   │   ├── Dockerfile
-│   │   └── devcontainer.json
-│   ├── python/                    # Python container config
-│   │   ├── Dockerfile
-│   │   └── devcontainer.json
-│   └── texlive/                   # TeXLive container config
-│       ├── Dockerfile
-│       └── devcontainer.json
-├── typescript-workspace/          # TypeScript project files
-├── python-workspace/              # Python project files
-├── texlive-workspace/             # LaTeX documents
-└── README.md                      # Project documentation
-```
+## Configuration Details
 
-## Setup Instructions
+### Root Configuration
 
-### Prerequisites
+The `.devcontainer/devcontainer.json` file defines the multi-container setup:
 
-- [Docker](https://www.docker.com/products/docker-desktop) installed on your system
-- [Visual Studio Code](https://code.visualstudio.com/) with the [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension installed
-
-### Opening a Specific Environment
-
-1. Open VS Code
-2. Press F1 and select **Remote-Containers: Open Folder in Container...**
-3. Select one of the following directories:
-   - typescript-workspace for TypeScript development
-   - python-workspace for Python development
-   - texlive-workspace for LaTeX development
-
-VS Code will automatically build and connect to the appropriate container for the selected workspace.
-
-## Container Configurations
-
-### TypeScript Container
-
-```json
-// .devcontainer/typescript/devcontainer.json
+```jsonc
 {
-  "name": "TypeScript Development",
-  "dockerFile": "Dockerfile",
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "ms-vscode.vscode-typescript-next"
-      ],
-      "settings": {
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-      }
-    }
+  "name": "Multi-Language Development Containers",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "typescript", // Default service
+  "workspaceFolder": "/workspace",
+  "updateRemoteUserUID": true,
+  "settings": {
+    "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib"
   },
-  "forwardPorts": [3000],
-  "postCreateCommand": "npm install",
-  "remoteUser": "node"
+  "extensions": [
+    "ms-vscode.vscode-typescript-tslint-plugin",
+    "ms-python.python",
+    "James-Yu.latex-workshop"
+  ]
 }
 ```
 
-```dockerfile
-# .devcontainer/typescript/Dockerfile
-FROM node:18
+### Docker Compose
 
-# Install essential tools
-RUN apt-get update && apt-get -y install git curl
-
-# Setup non-root user (optional)
-ARG USERNAME=node
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-
-WORKDIR /workspaces
-
-# Default command
-CMD ["bash"]
-```
-
-### Python Container
-
-```json
-// .devcontainer/python/devcontainer.json
-{
-  "name": "Python Development",
-  "dockerFile": "Dockerfile",
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-python.python",
-        "ms-python.vscode-pylance",
-        "njpwerner.autodocstring"
-      ],
-      "settings": {
-        "python.linting.enabled": true,
-        "python.linting.pylintEnabled": true,
-        "python.formatting.provider": "black"
-      }
-    }
-  },
-  "postCreateCommand": "pip install -r requirements.txt",
-  "remoteUser": "vscode"
-}
-```
-
-```dockerfile
-# .devcontainer/python/Dockerfile
-FROM python:3.10-slim
-
-# Install packages and Python tools
-RUN apt-get update && apt-get -y install git
-
-# Install common Python packages
-RUN pip install --no-cache-dir pytest black pylint
-
-# Setup non-root user
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
-
-WORKDIR /workspaces
-
-# Default command
-CMD ["bash"]
-```
-
-### TeXLive Container
-
-```json
-// .devcontainer/texlive/devcontainer.json
-{
-  "name": "TeXLive Development",
-  "dockerFile": "Dockerfile",
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "james-yu.latex-workshop",
-        "valentjn.vscode-ltex"
-      ],
-      "settings": {
-        "latex-workshop.latex.autoBuild.run": "onSave",
-        "latex-workshop.view.pdf.viewer": "tab"
-      }
-    }
-  },
-  "remoteUser": "vscode"
-}
-```
-
-```dockerfile
-# .devcontainer/texlive/Dockerfile
-FROM ubuntu:22.04
-
-# Install TeXLive and tools
-RUN apt-get update && apt-get -y install \
-    texlive-full \
-    latexmk \
-    git
-
-# Setup non-root user
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
-
-WORKDIR /workspaces
-
-# Default command
-CMD ["bash"]
-```
-
-### Root Docker Compose
+The docker-compose.yml file orchestrates all three container environments:
 
 ```yaml
-# .devcontainer/docker-compose.yml
 version: '3'
+
 services:
   typescript:
     build:
       context: ./typescript
       dockerfile: Dockerfile
+      args:
+        USERNAME: "${LOCAL_USERNAME:-vscode}"
+        USER_UID: "${LOCAL_USER_UID:-1000}"
+        USER_GID: "${LOCAL_USER_GID:-1000}"
     volumes:
-      - ..:/workspaces:cached
+      - ..:/workspace:cached
+    working_dir: /workspace/typescript-workspace
     command: sleep infinity
 
   python:
     build: 
       context: ./python
       dockerfile: Dockerfile
+      args:
+        USERNAME: "${LOCAL_USERNAME:-vscode}"
+        USER_UID: "${LOCAL_USER_UID:-1000}"
+        USER_GID: "${LOCAL_USER_GID:-1000}"
     volumes:
-      - ..:/workspaces:cached
+      - ..:/workspace:cached
+    working_dir: /workspace/python-workspace
+    network_mode: "host"
     command: sleep infinity
 
   texlive:
     build:
       context: ./texlive
       dockerfile: Dockerfile
+      args:
+        USERNAME: "${LOCAL_USERNAME:-vscode}"
+        USER_UID: "${LOCAL_USER_UID:-1000}"
+        USER_GID: "${LOCAL_USER_GID:-1000}"
     volumes:
-      - ..:/workspaces:cached
+      - ..:/workspace:cached
+    working_dir: /workspace/texlive-workspace
     command: sleep infinity
 ```
 
-## Usage Tips
+### Dynamic User Configuration
 
-### Switching Between Containers
+The setup.sh script dynamically captures the host user information:
 
-To switch between development environments:
+```bash
+#!/bin/bash
 
-1. Close VS Code
-2. Reopen VS Code and select a different workspace folder
-3. VS Code will connect to the appropriate container
+# Capture local user info
+LOCAL_USERNAME=$(whoami)
+LOCAL_USER_UID=$(id -u)
+LOCAL_USER_GID=$(id -g)
 
-Alternatively, you can use the **Remote-Containers: Reopen in Container** command from the command palette (F1) to select a different container configuration.
+# Create a .env file for docker-compose
+cat > .devcontainer/.env <<EOF
+LOCAL_USERNAME=$LOCAL_USERNAME
+LOCAL_USER_UID=$LOCAL_USER_UID
+LOCAL_USER_GID=$LOCAL_USER_GID
+EOF
 
-### Shared Volumes
+# Build the containers with these variables
+cd .devcontainer && docker-compose build
 
-All containers mount the project directory as a volume, allowing you to:
-- Access files across environments
-- Persist changes when containers are rebuilt
-- Share configuration files as needed
+echo "Containers built with user: $LOCAL_USERNAME ($LOCAL_USER_UID:$LOCAL_USER_GID)"
+echo "Environment saved to .devcontainer/.env"
+```
 
-### Customizing Environments
+### Region-Specific Docker Configuration
 
-To modify a container configuration:
-1. Edit the appropriate Dockerfile or devcontainer.json file
-2. Rebuild the container using the **Remote-Containers: Rebuild Container** command
+Two utility scripts handle switching between global and regional Docker registry access:
+
+- `docker-china-mode.sh`: Configures Docker to use Chinese registry mirrors
+- `docker-global-mode.sh`: Resets Docker to use the default global registries
+
+## Using the DevContainers
+
+### Initial Setup
+
+1. Run the setup script to capture your user information:
+   ```bash
+   npm run setup
+   ```
+
+2. If you're in a region with restricted Docker Hub access:
+   ```bash
+   npm run docker:china
+   ```
+   Otherwise, for global access:
+   ```bash
+   npm run docker:global
+   ```
+
+3. Open VS Code in the project directory:
+   ```bash
+   code .
+   ```
+
+4. Press F1 and select "Remote-Containers: Reopen in Container"
+
+### Switching Between Environments
+
+You can switch between development environments in VS Code:
+
+1. Press F1 to open the Command Palette
+2. Select "Remote-Containers: Open Folder in Container..."
+3. Choose the appropriate workspace folder:
+   - typescript-workspace for TypeScript development
+   - python-workspace for Python development
+   - texlive-workspace for LaTeX development
+
+## Customization
+
+### Adding Extensions
+
+To add VS Code extensions to specific environments, modify the corresponding `devcontainer.json` file. For example:
+
+```jsonc
+"extensions": [
+  "ms-python.python",
+  "ms-toolsai.jupyter", 
+  "ms-python.vscode-pylance"
+]
+```
+
+### Modifying Dockerfiles
+
+Each environment has its own Dockerfile that you can customize with additional packages or configurations.
+
+### Shell Experience
+
+All environments use Oh My Zsh with the "agnoster" theme and useful plugins:
+
+- `zsh-autosuggestions`: Command suggestions based on history
+- `zsh-syntax-highlighting`: Syntax highlighting for commands
+- Environment-specific plugins (python, npm, etc.)
 
 ## Troubleshooting
 
-- **Container Build Issues**: Check Docker logs for detailed error messages
-- **Extension Problems**: Verify that the specified extensions in each devcontainer.json file are available in the VS Code marketplace
-- **Performance Issues**: Adjust the volume mount settings in docker-compose.yml for better filesystem performance
+### Docker Connectivity Issues
 
-## Resources
+If you experience Docker Hub connectivity issues:
 
-- [VS Code Remote Development](https://code.visualstudio.com/docs/remote/remote-overview)
-- [Developing inside a Container](https://code.visualstudio.com/docs/remote/containers)
-- [Advanced Container Configuration](https://code.visualstudio.com/docs/remote/devcontainerjson-reference)
+1. Check your network connectivity
+2. Try switching between regional and global configurations
+3. Use the built-in test-network function in containers
+
+### File Permission Issues
+
+If you encounter file permission problems, ensure:
+
+1. The setup script has run successfully
+2. User IDs match between host and container
+3. Volume mounts are working correctly
+
+For other issues, refer to the Docker and VS Code Remote-Containers documentation.

@@ -1,6 +1,18 @@
 # .devcontainer/typescript/Dockerfile
 FROM node:23
 
+# Create a non-root user matching host user
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+
 # Install Zsh and dependencies
 RUN apt-get update && apt-get install -y \
     zsh \
@@ -50,24 +62,27 @@ alias ll="ls -la"\n\
 RUN echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> ~/.zshrc \
     && echo 'source /etc/zsh/zshrc.d/auto-completion.zsh' >> ~/.zshrc
 
+# Set up Oh My Zsh for the user
+RUN su $USERNAME -c 'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended' && \
+    su $USERNAME -c 'git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions' && \
+    su $USERNAME -c 'git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting'
+
 # Set working directory
-WORKDIR /workspace
+WORKDIR /workspace/typescript-workspace
 
 # Install TypeScript globally
 RUN npm install -g typescript
 
-# Copy package.json and install dependencies
-COPY ../typescript-workspace/package.json ./
-RUN npm install
-
-# Copy the rest of the workspace files
-COPY ../typescript-workspace ./
-
 # Expose the port for the TypeScript application
 EXPOSE 3000
 
+# Change ownership of npm cache and config
+RUN mkdir -p /home/$USERNAME/.npm && chown -R $USERNAME:$USERNAME /home/$USERNAME/.npm
+
 # Set Zsh as default shell
 ENV SHELL=/bin/zsh
+
+USER $USERNAME
 
 # Default command
 CMD ["zsh"]

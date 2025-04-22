@@ -1,73 +1,79 @@
-# Multi-Language Development Containers
+# Multi-Language Development Containers for LLM
 
-This project provides a multi-language development environment using Docker containers for TypeScript, Python, and TeX Live. Each language has its own dedicated container, allowing for a seamless development experience.
+A comprehensive development environment supporting TypeScript, Python, and LaTeX using VS Code DevContainers. Designed for consistent development experiences across team members and different network environments.
+
+## Features
+
+- **Multiple Language Support**: TypeScript, Python, and LaTeX/TeXLive
+- **Isolated Environments**: Consistent, containerized development setups
+- **Network Flexibility**: Tools for switching between global and region-specific Docker registries
+- **Enhanced Shell Experience**: Custom Oh My Zsh configuration with helpful plugins
+- **Dynamic User Mapping**: Container users match your host system user
+
+## Quick Start
+
+### Prerequisites
+
+- [Docker](https://www.docker.com/products/docker-desktop)
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+
+### Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/qi-v2-llm.git
+   cd qi-v2-llm
+   ```
+
+2. Install npm dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Run the setup script:
+   ```bash
+   npm run setup
+   ```
+
+4. Open VS Code:
+   ```bash
+   code .
+   ```
+
+5. Use Command Palette (F1) → "Remote-Containers: Reopen in Container"
+
+### Region-Specific Configuration
+
+For users in regions with network restrictions:
+
+```bash
+# Enable region-specific Docker mirrors
+npm run docker:china
+
+# Switch back to global configuration
+npm run docker:global
+```
 
 ## Project Structure
 
 ```
-qi-v2-llm
-├── .devcontainer
-│   ├── devcontainer.json
-│   ├── docker-compose.yml
-│   ├── typescript
-│   │   ├── Dockerfile
-│   │   └── devcontainer.json
-│   ├── python
-│   │   ├── Dockerfile
-│   │   └── devcontainer.json
-│   └── texlive
-│       ├── Dockerfile
-│       └── devcontainer.json
-├── typescript-workspace
-│   ├── src
-│   │   └── index.ts
-│   ├── package.json
-│   └── tsconfig.json
-├── python-workspace
-│   ├── src
-│   │   └── main.py
-│   └── requirements.txt
-├── texlive-workspace
-│   └── src
-│       └── main.tex
-├── .gitignore
-└── README.md
+qi-v2-llm/
+├── .devcontainer/                 # DevContainer configurations
+│   ├── devcontainer.json          # Root configuration
+│   ├── docker-compose.yml         # Multi-container orchestration
+│   ├── setup.sh                   # Setup script for user configuration
+│   ├── python/                    # Python environment
+│   ├── typescript/                # TypeScript environment 
+│   └── texlive/                   # LaTeX environment
+├── python-workspace/              # Python code
+├── typescript-workspace/          # TypeScript code
+├── texlive-workspace/             # LaTeX documents
+└── docs/                          # Documentation
+    └── devop/
+        └── devcontainer.md        # DevContainer documentation
 ```
-
-## Getting Started
-
-To set up the development environment, follow these steps:
-
-1. **Clone the repository:**
-   ```
-   git clone <repository-url>
-   cd qi-v2-llm
-   ```
-
-2. **Open the project in your code editor.**
-
-3. **Build and start the containers:**
-   Use the provided `docker-compose.yml` file to build and start the containers for TypeScript, Python, and TeX Live. You can do this by running:
-   ```
-   docker-compose up --build
-   ```
-
-4. **Access the workspaces:**
-   Each language workspace is located in its respective directory:
-   - TypeScript: `typescript-workspace`
-   - Python: `python-workspace`
-   - TeX Live: `texlive-workspace`
-
-## Usage
-
-- For TypeScript development, navigate to the `typescript-workspace` directory and use the TypeScript tools as needed.
-- For Python development, navigate to the `python-workspace` directory and run your Python scripts.
-- For LaTeX documents, navigate to the `texlive-workspace` directory and compile your `.tex` files.
-
-## Contributing
-
-Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for more details.
+This project is licensed under the MIT License. See the LICENSE file for details.

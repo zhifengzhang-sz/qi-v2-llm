@@ -1,8 +1,12 @@
 {
   "name": "Multi-Language Development Containers",
   "dockerComposeFile": "docker-compose.yml",
-  "service": "typescript",
+  "service": "typescript", // Default service
   "workspaceFolder": "/workspace",
+  
+  // Let VS Code handle user mapping
+  "updateRemoteUserUID": true,
+  
   "settings": {
     "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib"
   },

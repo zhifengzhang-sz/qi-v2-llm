@@ -1,29 +1,40 @@
-version: '3.8'
-
 services:
   typescript:
     build:
       context: ./typescript
       dockerfile: Dockerfile
+      args:
+        USERNAME: "${LOCAL_USERNAME:-vscode}"
+        USER_UID: "${LOCAL_USER_UID:-1000}"
+        USER_GID: "${LOCAL_USER_GID:-1000}"
     volumes:
-      - ../typescript-workspace:/workspace
-    working_dir: /workspace
-    command: ["npm", "start"]
+      - ..:/workspace:cached
+    working_dir: /workspace/typescript-workspace
+    command: sleep infinity
 
   python:
-    build:
+    build: 
       context: ./python
       dockerfile: Dockerfile
+      args:
+        USERNAME: "${LOCAL_USERNAME:-vscode}"
+        USER_UID: "${LOCAL_USER_UID:-1000}"
+        USER_GID: "${LOCAL_USER_GID:-1000}"
     volumes:
-      - ../python-workspace:/workspace
-    working_dir: /workspace
-    command: ["python", "src/main.py"]
+      - ..:/workspace:cached
+    working_dir: /workspace/python-workspace
+    network_mode: "host"
+    command: sleep infinity
 
   texlive:
     build:
       context: ./texlive
       dockerfile: Dockerfile
+      args:
+        USERNAME: "${LOCAL_USERNAME:-vscode}"
+        USER_UID: "${LOCAL_USER_UID:-1000}"
+        USER_GID: "${LOCAL_USER_GID:-1000}"
     volumes:
-      - ../texlive-workspace:/workspace
-    working_dir: /workspace
-    command: ["pdflatex", "src/main.tex"]
+      - ..:/workspace:cached
+    working_dir: /workspace/texlive-workspace
+    command: sleep infinity

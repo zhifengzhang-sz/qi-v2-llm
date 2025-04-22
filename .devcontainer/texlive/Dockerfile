@@ -14,6 +14,18 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Create a non-root user matching host user
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+
 # Create directories if they don't exist
 RUN mkdir -p /etc/zsh/zshrc.d
 
@@ -50,11 +62,15 @@ alias latexmk="latexmk -pdf -interaction=nonstopmode"\n\
 RUN echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> ~/.zshrc \
     && echo 'source /etc/zsh/zshrc.d/auto-completion.zsh' >> ~/.zshrc
 
+# Set up Oh My Zsh for the user
+RUN su $USERNAME -c 'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
+
 # Set working directory
-WORKDIR /workspace
+WORKDIR /workspace/texlive-workspace
 
 # Set Zsh as default shell
 ENV SHELL=/bin/zsh
 
 # Default command
+USER $USERNAME
 CMD ["zsh"]

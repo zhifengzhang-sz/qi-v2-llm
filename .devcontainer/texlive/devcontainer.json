@@ -9,5 +9,9 @@
     "latex-workshop.latex.autoBuild.run": "onFileChange",
     "latex-workshop.view.pdf.viewer": "tab"
   },
-  "postCreateCommand": "tlmgr install scheme-full"
+  "postCreateCommand": "tlmgr install scheme-full",
+  
+  // Add remote user configuration
+  "remoteUser": "${localEnv:USER}",
+  "updateRemoteUserUID": true
 }

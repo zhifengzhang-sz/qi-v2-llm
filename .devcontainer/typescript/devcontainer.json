@@ -11,5 +11,8 @@
     "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib"
   },
   "postCreateCommand": "npm install",
-  "remoteUser": "node"
+  
+  // Change this to match the dynamic configuration
+  "remoteUser": "${localEnv:USER}",
+  "updateRemoteUserUID": true
 }
