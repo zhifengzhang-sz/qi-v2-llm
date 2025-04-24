@@ -1,16 +1,21 @@
 {
-    "name": "multi-language-dev-containers",
-    "version": "1.0.0",
-    "description": "Multi-language development environment with VS Code DevContainers",
-    "scripts": {
-      "setup": "chmod +x .devcontainer/setup.sh && ./.devcontainer/setup.sh",
-      "docker:china": "chmod +x ~/docker-china-mode.sh && ~/docker-china-mode.sh",
-      "docker:global": "chmod +x ~/docker-global-mode.sh && ~/docker-global-mode.sh",
-      "build": "cd .devcontainer && docker-compose build",
-      "start": "cd .devcontainer && docker-compose up -d",
-      "stop": "cd .devcontainer && docker-compose down",
-      "python": "cd .devcontainer && docker-compose run --rm python zsh",
-      "typescript": "cd .devcontainer && docker-compose run --rm typescript zsh",
-      "texlive": "cd .devcontainer && docker-compose run --rm texlive zsh"
-    }
+  "name": "multi-language-dev-containers",
+  "version": "1.0.0",
+  "description": "Multi-language development environment with VS Code DevContainers",
+  "scripts": {
+    "setup": "chmod +x .devcontainer/setup.sh && ./.devcontainer/setup.sh",
+    "docker:china": "chmod +x scripts/docker-china-mode.sh && ./scripts/docker-china-mode.sh",
+    "docker:global": "chmod +x scripts/docker-global-mode.sh && ./scripts/docker-global-mode.sh",
+    "github:china": "chmod +x scripts/github-china-mode.sh && ./scripts/github-china-mode.sh",
+    "github:global": "chmod +x scripts/github-global-mode.sh && ./scripts/github-global-mode.sh",
+    "network:china": "npm run docker:china && npm run github:china",
+    "network:global": "npm run docker:global && npm run github:global",
+    "build": "cd .devcontainer && (docker compose build || docker-compose build)",
+    "start": "cd .devcontainer && (docker compose up -d || docker-compose up -d)",
+    "stop": "cd .devcontainer && (docker compose down || docker-compose down)",
+    "compose:install": "./scripts/install-compose.sh",
+    "python": "cd .devcontainer && (docker compose run --rm python zsh || docker-compose run --rm python zsh)",
+    "typescript": "cd .devcontainer && (docker compose run --rm typescript zsh || docker-compose run --rm typescript zsh)",
+    "texlive": "cd .devcontainer && (docker compose run --rm texlive zsh || docker-compose run --rm texlive zsh)"
   }
+}
