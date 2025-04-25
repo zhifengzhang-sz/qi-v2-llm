@@ -1,17 +1,20 @@
 # .devcontainer/typescript/Dockerfile
 FROM node:23
 
-# Create a non-root user matching host user
+# Create a non-root user with sudo access
 ARG USERNAME=vscode
 ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+ARG USER_GID=1000
 
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && apt-get update \
-    && apt-get install -y sudo \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
+# Install sudo first
+RUN apt-get update && apt-get install -y sudo
+
+# Create group and user with better error handling
+RUN groupadd -g $USER_GID -o $USERNAME 2>/dev/null || echo "Group exists" && \
+    useradd -u $USER_UID -g $USER_GID -s /bin/bash -m $USERNAME 2>/dev/null || \
+    useradd -g $USER_GID -s /bin/bash -m $USERNAME 2>/dev/null || echo "User exists" && \
+    echo "$USERNAME ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && \
+    chmod 0440 /etc/sudoers.d/$USERNAME
 
 # Install Zsh and dependencies
 RUN apt-get update && apt-get install -y \
@@ -26,14 +29,22 @@ RUN apt-get update && apt-get install -y \
 # Create directories if they don't exist
 RUN mkdir -p /etc/zsh/zshrc.d
 
-# Set up Oh My Zsh
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended \
-    && git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions \
-    && git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+# Set up Oh My Zsh for root first
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+# Configure zsh for the user (with verification)
+RUN mkdir -p /home/$USERNAME/.oh-my-zsh && \
+    cp -r /root/.oh-my-zsh/* /home/$USERNAME/.oh-my-zsh/ && \
+    cp /root/.zshrc /home/$USERNAME/.zshrc && \
+    sed -i 's/\/root\/.oh-my-zsh/\/home\/'"$USERNAME"'\/.oh-my-zsh/g' /home/$USERNAME/.zshrc && \
+    # Verify user exists before chown
+    id $USERNAME && \
+    chown -R $USERNAME:$USERNAME /home/$USERNAME/.oh-my-zsh && \
+    chown $USERNAME:$USERNAME /home/$USERNAME/.zshrc
 
 # Configure Oh My Zsh with plugins
-RUN sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/' ~/.zshrc \
-    && sed -i 's/plugins=(git)/plugins=(git node npm zsh-autosuggestions zsh-syntax-highlighting)/' ~/.zshrc
+RUN sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/' /home/$USERNAME/.zshrc \
+    && sed -i 's/plugins=(git)/plugins=(git node npm zsh-autosuggestions zsh-syntax-highlighting)/' /home/$USERNAME/.zshrc
 
 # Create auto-completion setup
 RUN echo 'autoload -Uz compinit && compinit\n\
@@ -59,13 +70,8 @@ alias ll="ls -la"\n\
 ' > /etc/zsh/zshrc.d/custom-setup.zsh
 
 # Update .zshrc to source custom scripts
-RUN echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> ~/.zshrc \
-    && echo 'source /etc/zsh/zshrc.d/auto-completion.zsh' >> ~/.zshrc
-
-# Set up Oh My Zsh for the user
-RUN su $USERNAME -c 'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended' && \
-    su $USERNAME -c 'git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions' && \
-    su $USERNAME -c 'git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting'
+RUN echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> /home/$USERNAME/.zshrc \
+    && echo 'source /etc/zsh/zshrc.d/auto-completion.zsh' >> /home/$USERNAME/.zshrc
 
 # Set working directory
 WORKDIR /workspace/typescript-workspace

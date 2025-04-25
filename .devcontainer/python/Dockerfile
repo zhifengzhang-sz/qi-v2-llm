@@ -13,6 +13,7 @@ RUN apt-get update || \
     python3.10 \
     python3-pip \
     python3-venv \
+    python3-full \
     git \
     curl \
     wget \
@@ -20,28 +21,43 @@ RUN apt-get update || \
     fonts-powerline \
     bash-completion \
     python3-argcomplete \
+    sudo \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && rm -rf /var/lib/apt/lists/*
 
-# Configure pip with global and fallback index
+# Create a virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Now pip commands will use the virtual environment
 RUN pip config set global.timeout 120 && \
     pip install --upgrade pip
 
-# Create a non-root user with sudo access
+# Create a non-root user with sudo access - MORE ROBUST VERSION
 ARG USERNAME=vscode
 ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+ARG USER_GID=1000
 
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && apt-get update \
-    && apt-get install -y sudo \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
+RUN groupadd -g $USER_GID -o $USERNAME 2>/dev/null || echo "Group exists" && \
+    useradd -u $USER_UID -g $USER_GID -s /bin/bash -m $USERNAME 2>/dev/null || \
+    useradd -g $USER_GID -s /bin/bash -m $USERNAME 2>/dev/null || echo "User exists" && \
+    echo "$USERNAME ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && \
+    chmod 0440 /etc/sudoers.d/$USERNAME && \
+    (getent group sudo && usermod -aG sudo $USERNAME || echo "No sudo group")
 
-# Set up Oh My Zsh for both root and non-root user
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended \
-    && su $USERNAME -c 'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
+# Set up Oh My Zsh for root
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+# Create directories if they don't exist
+RUN mkdir -p /etc/zsh/zshrc.d
+
+# Configure zsh for the user
+RUN mkdir -p /home/$USERNAME/.oh-my-zsh && \
+    cp -r /root/.oh-my-zsh/* /home/$USERNAME/.oh-my-zsh/ && \
+    cp /root/.zshrc /home/$USERNAME/.zshrc && \
+    sed -i 's/\/root\/.oh-my-zsh/\/home\/'"$USERNAME"'\/.oh-my-zsh/g' /home/$USERNAME/.zshrc && \
+    chown -R $USERNAME:$USERNAME /home/$USERNAME/.oh-my-zsh && \
+    chown $USERNAME:$USERNAME /home/$USERNAME/.zshrc
 
 # Install additional Oh My Zsh plugins
 RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions \
@@ -74,12 +90,15 @@ fi\n\
 ' > /etc/zsh/zshrc.d/auto-completion.zsh
 
 # Create Zsh setup script to source in .zshrc
-RUN mkdir -p /etc/zsh/zshrc.d && echo '# Custom environment setup\n\
+RUN echo '# Custom environment setup\n\
 test-network() {\n\
   echo "Testing Docker registry connectivity:"\n\
   echo -n "Docker Hub: " && curl -s -o /dev/null -w "%{http_code}" https://registry-1.docker.io/v2/ || echo "Failed"\n\
   echo -n "PyPI: " && curl -s -o /dev/null -w "%{http_code}" https://pypi.org || echo "Failed"\n\
 }\n\
+\n\
+# Automatically activate the virtual environment\n\
+source /opt/venv/bin/activate\n\
 \n\
 # Aliases\n\
 alias ll="ls -la"\n\
@@ -97,9 +116,10 @@ RUN echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> /root/.zshrc \
 WORKDIR /workspace/python-workspace
 
 # Set Zsh as the default shell
-SHELL ["/bin/zsh", "-c"]
-USER $USERNAME
 ENV SHELL=/bin/zsh
+
+# Switch to non-root user
+USER $USERNAME
 
 # Default command
 CMD ["zsh"]
