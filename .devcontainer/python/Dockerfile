@@ -31,19 +31,30 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Now pip commands will use the virtual environment
 RUN pip config set global.timeout 120 && \
-    pip install --upgrade pip
+    pip install --upgrade pip setuptools wheel
 
-# Create a non-root user with sudo access - MORE ROBUST VERSION
+# --- User Creation Section ---
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=1000
 
-RUN groupadd -g $USER_GID -o $USERNAME 2>/dev/null || echo "Group exists" && \
-    useradd -u $USER_UID -g $USER_GID -s /bin/bash -m $USERNAME 2>/dev/null || \
-    useradd -g $USER_GID -s /bin/bash -m $USERNAME 2>/dev/null || echo "User exists" && \
-    echo "$USERNAME ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && \
-    chmod 0440 /etc/sudoers.d/$USERNAME && \
-    (getent group sudo && usermod -aG sudo $USERNAME || echo "No sudo group")
+# Install sudo first
+RUN apt-get update && apt-get install -y sudo && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Create the group and user, add to sudoers with NOPASSWD
+RUN groupadd -g ${USER_GID} -o ${USERNAME} 2>/dev/null || echo "Group ${USER_GID} already exists." && \
+    useradd -u ${USER_UID} -g ${USER_GID} --shell /bin/zsh --create-home ${USERNAME} 2>/dev/null || \
+    (usermod -l ${USERNAME} $(getent passwd ${USER_UID} | cut -d: -f1) && usermod -d /home/${USERNAME} -m ${USERNAME}) 2>/dev/null || \
+    echo "User ${USERNAME} (UID ${USER_UID}) already exists or could not be fully configured." && \
+    # Ensure sudoers directory exists and add NOPASSWD rule
+    mkdir -p /etc/sudoers.d && \
+    echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} && \
+    chmod 0440 /etc/sudoers.d/${USERNAME} && \
+    # Verification steps
+    echo "Verifying user ${USERNAME} (UID ${USER_UID}) exists..." && id ${USERNAME} && \
+    echo "Verifying sudoers config for ${USERNAME}..." && cat /etc/sudoers.d/${USERNAME} && \
+    echo "Testing sudo access for ${USERNAME}..." && sudo -u ${USERNAME} sudo -n true || echo "Sudo test failed for ${USERNAME}"
+# --- End User Creation Section ---
 
 # Set up Oh My Zsh for root
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -111,6 +122,12 @@ RUN echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> /root/.zshrc \
     && echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> /home/$USERNAME/.zshrc \
     && echo 'source /etc/zsh/zshrc.d/auto-completion.zsh' >> /root/.zshrc \
     && echo 'source /etc/zsh/zshrc.d/auto-completion.zsh' >> /home/$USERNAME/.zshrc
+
+# This line copies the file from .devcontainer/.zshrc into the container
+COPY ../.zshrc /home/$USERNAME/.zshrc
+
+# Change ownership of the virtual environment to the non-root user
+RUN chown -R ${USERNAME}:${USERNAME} /opt/venv
 
 # Set working directory
 WORKDIR /workspace/python-workspace

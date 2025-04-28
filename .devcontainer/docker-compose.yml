@@ -1,40 +1,40 @@
 services:
   typescript:
     build:
-      context: ./typescript
-      dockerfile: Dockerfile
+      context: . 
+      dockerfile: ./typescript/Dockerfile
       args:
         USERNAME: "${LOCAL_USERNAME:-vscode}"
         USER_UID: "${LOCAL_USER_UID:-1000}"
         USER_GID: "${LOCAL_USER_GID:-1000}"
     volumes:
-      - ..:/workspace:cached
+      - .:/workspace:cached
     working_dir: /workspace/typescript-workspace
     command: sleep infinity
 
   python:
     build: 
-      context: ./python
-      dockerfile: Dockerfile
+      context: . 
+      dockerfile: ./python/Dockerfile
       args:
         USERNAME: "${LOCAL_USERNAME:-vscode}"
         USER_UID: "${LOCAL_USER_UID:-1000}"
         USER_GID: "${LOCAL_USER_GID:-1000}"
     volumes:
-      - ..:/workspace:cached
+      - .:/workspace:cached
     working_dir: /workspace/python-workspace
     network_mode: "host"
     command: sleep infinity
 
   texlive:
     build:
-      context: ./texlive
-      dockerfile: Dockerfile
+      context: . 
+      dockerfile: ./texlive/Dockerfile
       args:
         USERNAME: "${LOCAL_USERNAME:-vscode}"
         USER_UID: "${LOCAL_USER_UID:-1000}"
         USER_GID: "${LOCAL_USER_GID:-1000}"
     volumes:
-      - ..:/workspace:cached
+      - .:/workspace:cached
     working_dir: /workspace/texlive-workspace
     command: sleep infinity

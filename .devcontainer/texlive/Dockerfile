@@ -67,6 +67,9 @@ alias latexmk="latexmk -pdf -interaction=nonstopmode"\n\
 RUN echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> /home/$USERNAME/.zshrc \
     && echo 'source /etc/zsh/zshrc.d/auto-completion.zsh' >> /home/$USERNAME/.zshrc
 
+# Copy custom .zshrc file
+COPY ../.zshrc /home/$USERNAME/.zshrc
+
 # Set working directory
 WORKDIR /workspace/texlive-workspace
 

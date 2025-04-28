@@ -1,31 +1,48 @@
 {
-  "name": "Python Development Container",
-  "dockerFile": "Dockerfile",
-  "context": "..",
+  "name": "Python Dev Environment",
+  // Link to the main docker-compose file
+  "dockerComposeFile": ["../docker-compose.yml"],
+  // Specify which service this configuration is for
+  "service": "python",
+  // The workspace folder inside the container
   "workspaceFolder": "/workspace/python-workspace",
-  // Use host network to avoid WSL networking issues
-  "runArgs": [
-    "--network=host"
-  ],
-  "extensions": [
-    "ms-python.python",
-    "ms-toolsai.jupyter"
-  ],
-  "settings": {
-    "python.defaultInterpreterPath": "/usr/bin/python3",
-    "python.formatting.provider": "black",
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true,
-    "terminal.integrated.defaultProfile.linux": "zsh",
-    "terminal.integrated.profiles.linux": {
-      "zsh": {
-        "path": "/bin/zsh"
+
+  // Revert to using the environment variable from the host/ .env file
+  "remoteUser": "${localEnv:LOCAL_USERNAME}", 
+  // Allow VS Code to manage UID mapping if needed for volume mounts
+  "updateRemoteUserUID": true,
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "ms-python.debugpy",
+        "charliermarsh.ruff" // Added Ruff for linting/formatting
+      ],
+      "settings": {
+        // Point to the Python interpreter inside the virtual environment
+        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "python.analysis.typeCheckingMode": "basic",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+          }
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "/bin/zsh"
+          }
+        }
       }
     }
   },
-  // Make install command more resilient
-  "postCreateCommand": "if [ -f requirements.txt ]; then pip install -r requirements.txt || echo 'Warning: Some packages failed to install'; fi",
-  // Use the vscode user with zsh
-  "remoteUser": "${localEnv:USER}",
-  "updateRemoteUserUID": true
+  // Update postCreateCommand to use the same variable
+  "postCreateCommand": "sudo chown ${containerUser}:${containerUser} -R /workspace && pip install --upgrade pip && if [ -f requirements.txt ]; then pip install -r requirements.txt; fi",
+  // Optional: Command to run when attaching to the container
+  "postAttachCommand": "git config --global --add safe.directory /workspace"
 }
