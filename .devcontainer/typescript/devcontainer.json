@@ -2,7 +2,10 @@
   "name": "TypeScript Development Container",
   "dockerFile": "Dockerfile",
   "context": "..",
-  "workspaceFolder": "/workspace/typescript-workspace",
+  // The workspace folder inside the container
+  "workspaceFolder": "/home/${localEnv:LOCAL_USERNAME}/workspace",
+  // Revert to using the environment variable from the host/ .env file
+  "remoteUser": "${localEnv:LOCAL_USERNAME}", 
   "extensions": [
     "ms-vscode.vscode-typescript-tslint-plugin",
     "esbenp.prettier-vscode"
@@ -13,6 +16,5 @@
   "postCreateCommand": "npm install",
   
   // Change this to match the dynamic configuration
-  "remoteUser": "${localEnv:USER}",
   "updateRemoteUserUID": true
 }

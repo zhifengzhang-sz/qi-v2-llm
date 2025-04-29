@@ -2,6 +2,9 @@
 
 echo '{
   "registry-mirrors": [
+    "https://docker.mirrors.ustc.edu.cn/",
+    "https://dockerhub.azk8s.cn/",
+    "https://docker.nju.edu.cn/",
     "https://registry.docker-cn.com/",
     "https://hub-mirror.c.163.com/",
     "https://mirror.baidubce.com/"

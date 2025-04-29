@@ -130,7 +130,7 @@ COPY ../.zshrc /home/$USERNAME/.zshrc
 RUN chown -R ${USERNAME}:${USERNAME} /opt/venv
 
 # Set working directory
-WORKDIR /workspace/python-workspace
+#WORKDIR /workspace
 
 # Set Zsh as the default shell
 ENV SHELL=/bin/zsh

@@ -1,7 +1,10 @@
 {
   "name": "TeX Live Development Container",
   "dockerFile": "Dockerfile",
-  "workspaceFolder": "/workspace",
+  // The workspace folder inside the container
+  "workspaceFolder": "/home/${localEnv:LOCAL_USERNAME}/workspace",
+  // Revert to using the environment variable from the host/ .env file
+  "remoteUser": "${localEnv:LOCAL_USERNAME}", 
   "extensions": [
     "James-Yu.latex-workshop"
   ],
@@ -12,6 +15,5 @@
   "postCreateCommand": "tlmgr install scheme-full",
   
   // Add remote user configuration
-  "remoteUser": "${localEnv:USER}",
   "updateRemoteUserUID": true
 }

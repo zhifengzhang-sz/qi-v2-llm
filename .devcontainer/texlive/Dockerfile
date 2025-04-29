@@ -71,7 +71,7 @@ RUN echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> /home/$USERNAME/.zshrc \
 COPY ../.zshrc /home/$USERNAME/.zshrc
 
 # Set working directory
-WORKDIR /workspace/texlive-workspace
+#WORKDIR /workspace
 
 # Set Zsh as default shell
 ENV SHELL=/bin/zsh

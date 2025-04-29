@@ -77,7 +77,7 @@ RUN echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> /home/$USERNAME/.zshrc \
 COPY ../.zshrc /home/$USERNAME/.zshrc
 
 # Set working directory
-WORKDIR /workspace/typescript-workspace
+#WORKDIR /workspace
 
 # Install TypeScript globally
 RUN npm install -g typescript
