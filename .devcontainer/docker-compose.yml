@@ -8,8 +8,10 @@ services:
         USER_UID: "${LOCAL_USER_UID:-1000}"
         USER_GID: "${LOCAL_USER_GID:-1000}"
     volumes:
-      - ../typescript-workspace:/home/${LOCAL_USERNAME}/workspace:cached
-    working_dir: /home/${LOCAL_USERNAME}/workspace
+      # Mount to a fixed path instead of a username-dependent path
+      - ../typescript-workspace:/workspace:cached
+    # Use a fixed working directory
+    working_dir: /workspace
     command: sleep infinity
 
   python:
@@ -21,8 +23,10 @@ services:
         USER_UID: "${LOCAL_USER_UID:-1000}"
         USER_GID: "${LOCAL_USER_GID:-1000}"
     volumes:
-      - ../python-workspace:/home/${LOCAL_USERNAME}/workspace:cached
-    working_dir: /home/${LOCAL_USERNAME}/workspace
+      # Mount to a fixed path instead of a username-dependent path
+      - ../python-workspace:/workspace:cached
+    # Use a fixed working directory
+    working_dir: /workspace
     network_mode: "host"
     command: sleep infinity
 
@@ -35,6 +39,8 @@ services:
         USER_UID: "${LOCAL_USER_UID:-1000}"
         USER_GID: "${LOCAL_USER_GID:-1000}"
     volumes:
-      - ../texlive-workspace:/home/${LOCAL_USERNAME}/workspace:cached
-    working_dir: /home/${LOCAL_USERNAME}/workspace
+      # Mount to a fixed path instead of a username-dependent path
+      - ../texlive-workspace:/workspace:cached
+    # Use a fixed working directory
+    working_dir: /workspace
     command: sleep infinity

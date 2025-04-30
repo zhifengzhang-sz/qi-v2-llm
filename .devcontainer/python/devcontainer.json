@@ -4,17 +4,16 @@
   "dockerComposeFile": ["../docker-compose.yml"],
   // Specify which service this configuration is for
   "service": "python",
-  // The workspace folder inside the container
-  "workspaceFolder": "/home/${localEnv:LOCAL_USERNAME}/workspace",
-  // Revert to using the environment variable from the host/ .env file
+  // Use the fixed workspace folder
+  "workspaceFolder": "/workspace",
+  // Keep using the variable for remoteUser
   "remoteUser": "${localEnv:LOCAL_USERNAME}", 
   // Allow VS Code to manage UID mapping if needed for volume mounts
   "updateRemoteUserUID": true,
 
-  // Environment variables that will be set for all commands
+  // Simplified containerEnv without paths
   "containerEnv": {
-    "USER_HOME": "/home/${localEnv:LOCAL_USERNAME}",
-    "USER_WORKSPACE": "/home/${localEnv:LOCAL_USERNAME}/workspace"
+    "PYTHONPATH": "/workspace"
   },
 
   "customizations": {
@@ -23,7 +22,10 @@
         "ms-python.python",
         "ms-toolsai.jupyter",
         "ms-python.debugpy",
-        "charliermarsh.ruff" // Added Ruff for linting/formatting
+        "charliermarsh.ruff",
+        "shd101wyy.markdown-preview-enhanced",
+        "redhat.vscode-yaml",
+        "ktiays.aicursor"
       ],
       "settings": {
         // Point to the Python interpreter inside the virtual environment
@@ -45,5 +47,6 @@
         }
       }
     }
-  }
+  },
+  "postCreateCommand": "sudo chown -R $(id -u):$(id -g) /workspace"
 }

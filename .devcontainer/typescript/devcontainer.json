@@ -8,7 +8,10 @@
   "remoteUser": "${localEnv:LOCAL_USERNAME}", 
   "extensions": [
     "ms-vscode.vscode-typescript-tslint-plugin",
-    "esbenp.prettier-vscode"
+    "esbenp.prettier-vscode",
+    "shd101wyy.markdown-preview-enhanced",
+    "redhat.vscode-yaml",
+    "ktiays.aicursor"
   ],
   "settings": {
     "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib"

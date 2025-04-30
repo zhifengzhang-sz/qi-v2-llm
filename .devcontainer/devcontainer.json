@@ -13,7 +13,10 @@
   "extensions": [
     "ms-vscode.vscode-typescript-tslint-plugin",
     "ms-python.python",
-    "James-Yu.latex-workshop"
+    "James-Yu.latex-workshop",
+    "shd101wyy.markdown-preview-enhanced",
+    "redhat.vscode-yaml",
+    "ktiays.aicursor"
   ],
   "postCreateCommand": "npm install"
 }

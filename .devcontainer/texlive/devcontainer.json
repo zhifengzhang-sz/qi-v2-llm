@@ -6,7 +6,10 @@
   // Revert to using the environment variable from the host/ .env file
   "remoteUser": "${localEnv:LOCAL_USERNAME}", 
   "extensions": [
-    "James-Yu.latex-workshop"
+    "James-Yu.latex-workshop",
+    "shd101wyy.markdown-preview-enhanced",
+    "redhat.vscode-yaml",
+    "ktiays.aicursor"
   ],
   "settings": {
     "latex-workshop.latex.autoBuild.run": "onFileChange",
