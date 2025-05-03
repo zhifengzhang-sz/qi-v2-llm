@@ -1,14 +1,13 @@
 {
   "name": "TypeScript Development Container",
-  "dockerFile": "Dockerfile",
-  "context": "..",
-  // The workspace folder inside the container
-  "workspaceFolder": "/home/${localEnv:LOCAL_USERNAME}/workspace",
-  // Revert to using the environment variable from the host/ .env file
-  "remoteUser": "${localEnv:LOCAL_USERNAME}", 
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "typescript",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "${localEnv:LOCAL_USERNAME}",
+  "updateRemoteUserUID": true,
   "extensions": [
     "ms-vscode.vscode-typescript-tslint-plugin",
-    "esbenp.prettier-vscode",
+    "esben.prettier-vscode",
     "shd101wyy.markdown-preview-enhanced",
     "redhat.vscode-yaml",
     "ktiays.aicursor"
@@ -16,8 +15,5 @@
   "settings": {
     "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib"
   },
-  "postCreateCommand": "npm install",
-  
-  // Change this to match the dynamic configuration
-  "updateRemoteUserUID": true
+  "postCreateCommand": "sudo chown -R $(id -u):$(id -g) /workspace && npm install"
 }

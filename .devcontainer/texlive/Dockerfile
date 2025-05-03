@@ -1,81 +1,58 @@
-FROM texlive/texlive:latest
+FROM docker.io/texlive/texlive:latest
 
-# Install Zsh and dependencies
+# Install necessary tools
 RUN apt-get update && apt-get install -y \
-    texlive-latex-extra \
-    texlive-fonts-recommended \
-    texlive-fonts-extra \
-    texlive-science \
-    zsh \
-    git \
+    tree \
     curl \
+    git \
     wget \
-    fonts-powerline \
+    less \
+    zsh \
     sudo \
-    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user with sudo access - SIMPLIFIED VERSION
-# Update just the user creation section
+# Set up arguments for username and UID/GID
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=1000
 
-# Fix typo in id command and improve error handling
-RUN groupadd -g $USER_GID -o $USERNAME 2>/dev/null || echo "Group exists" && \
-    useradd -u $USER_UID -g $USER_GID -s /bin/bash -m $USERNAME 2>/dev/null || \
-    useradd -g $USER_GID -s /bin/bash -m $USERNAME 2>/dev/null || echo "User exists" && \
-    echo "$USERNAME ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && \
-    chmod 0440 /etc/sudoers.d/$USERNAME && \
-    id $USERNAME || echo "Warning: User verification failed"
+# Handle the case where the texlive user exists - rename it to the new USERNAME
+RUN if getent passwd texlive > /dev/null; then \
+    usermod -l $USERNAME texlive && \
+    usermod -d /home/$USERNAME -m $USERNAME && \
+    groupmod -n $USERNAME texlive && \
+    echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME; \
+else \
+    # If texlive user doesn't exist, create the new user
+    groupadd -g $USER_GID -o $USERNAME 2>/dev/null || groupmod -g $USER_GID $USERNAME && \
+    useradd -u $USER_UID -g $USER_GID -s /bin/zsh -m $USERNAME && \
+    echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME; \
+fi
 
-# Create directories if they don't exist
+# Additional setup for ZSH
 RUN mkdir -p /etc/zsh/zshrc.d
-
-# Set up Oh My Zsh for root
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
-# Configure zsh for the user
+# Copy the zshrc file to the user's home directory
 RUN mkdir -p /home/$USERNAME/.oh-my-zsh && \
-    cp -r /root/.oh-my-zsh/* /home/$USERNAME/.oh-my-zsh/ && \
-    cp /root/.zshrc /home/$USERNAME/.zshrc && \
-    sed -i 's/\/root\/.oh-my-zsh/\/home\/'"$USERNAME"'\/.oh-my-zsh/g' /home/$USERNAME/.zshrc && \
-    chown -R $USERNAME:$USERNAME /home/$USERNAME/.oh-my-zsh && \
-    chown $USERNAME:$USERNAME /home/$USERNAME/.zshrc
+    cp -r /root/.oh-my-zsh/templates/zshrc.zsh-template /home/$USERNAME/.zshrc
 
-# Create auto-completion setup
-RUN echo 'autoload -Uz compinit && compinit\n\
-# Auto-completion for git\n\
-if [ -f /usr/share/zsh/vendor-completions/_git ]; then\n\
-  source /usr/share/zsh/vendor-completions/_git\n\
-fi\n\
-' > /etc/zsh/zshrc.d/auto-completion.zsh
+# Add custom scripts and configurations
+RUN echo 'autoload -Uz compinit && compinit\ninclude /etc/zsh/zshrc.d/*.zsh 2> /dev/null' > /etc/zsh/zshrc.d/auto-completion.zsh
+RUN echo '# Custom environment setup\ntest-network() {\n  ping -c 1 google.com\n}' > /etc/zsh/zshrc.d/custom-setup.zsh
+RUN echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> /root/.zshrc && \
+    echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> /home/$USERNAME/.zshrc && \
+    echo 'source /etc/zsh/zshrc.d/auto-completion.zsh' >> /root/.zshrc && \
+    echo 'source /etc/zsh/zshrc.d/auto-completion.zsh' >> /home/$USERNAME/.zshrc
 
-# Create custom setup script
-RUN echo '# Custom environment setup\n\
-test-network() {\n\
-  echo "Testing connectivity:"\n\
-  echo -n "CTAN: " && curl -s -o /dev/null -w "%{http_code}" https://ctan.org || echo "Failed"\n\
-}\n\
-\n\
-# Aliases\n\
-alias ll="ls -la"\n\
-alias latexmk="latexmk -pdf -interaction=nonstopmode"\n\
-' > /etc/zsh/zshrc.d/custom-setup.zsh
+# Copy the .zshrc file if it exists in the build context
+COPY ./.zshrc /home/$USERNAME/.zshrc
 
-# Update .zshrc to source custom scripts
-RUN echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> /home/$USERNAME/.zshrc \
-    && echo 'source /etc/zsh/zshrc.d/auto-completion.zsh' >> /home/$USERNAME/.zshrc
+# Make sure all files in the home directory are owned by the user
+RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
 
-# Copy custom .zshrc file
-COPY ../.zshrc /home/$USERNAME/.zshrc
-
-# Set working directory
-#WORKDIR /workspace
-
-# Set Zsh as default shell
-ENV SHELL=/bin/zsh
-
-# Default command
+# Set the default user
 USER $USERNAME
+WORKDIR /home/$USERNAME
+
 CMD ["zsh"]

@@ -1,10 +1,10 @@
 {
   "name": "TeX Live Development Container",
-  "dockerFile": "Dockerfile",
-  // The workspace folder inside the container
-  "workspaceFolder": "/home/${localEnv:LOCAL_USERNAME}/workspace",
-  // Revert to using the environment variable from the host/ .env file
-  "remoteUser": "${localEnv:LOCAL_USERNAME}", 
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "texlive",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "${localEnv:LOCAL_USERNAME}",
+  "updateRemoteUserUID": true,
   "extensions": [
     "James-Yu.latex-workshop",
     "shd101wyy.markdown-preview-enhanced",
@@ -15,8 +15,5 @@
     "latex-workshop.latex.autoBuild.run": "onFileChange",
     "latex-workshop.view.pdf.viewer": "tab"
   },
-  "postCreateCommand": "tlmgr install scheme-full",
-  
-  // Add remote user configuration
-  "updateRemoteUserUID": true
+  "postCreateCommand": "sudo chown -R $(id -u):$(id -g) /workspace"
 }
