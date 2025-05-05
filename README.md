@@ -4,11 +4,13 @@ A comprehensive development environment supporting TypeScript, Python, and LaTeX
 
 ## Features
 
-- **Multiple Language Support**: TypeScript, Python, and LaTeX/TeXLive
+- **Multiple Language Support**: TypeScript, Python, LaTeX/TeXLive, and combined MCP environment
+- **Layered Architecture**: Common base image with specialized development environments
 - **Isolated Environments**: Consistent, containerized development setups
 - **Network Flexibility**: Tools for switching between global and region-specific Docker registries
 - **Enhanced Shell Experience**: Custom Oh My Zsh configuration with helpful plugins
 - **Dynamic User Mapping**: Container users match your host system user
+- **MCP Development**: Combined Python and TypeScript for Model Context Protocol development
 
 ## Quick Start
 
@@ -43,6 +45,28 @@ A comprehensive development environment supporting TypeScript, Python, and LaTeX
 
 5. Use Command Palette (F1) → "Remote-Containers: Reopen in Container"
 
+### Environment Selection
+
+By default, you'll open in the MCP (Model Context Protocol) environment. To use a specific environment:
+
+1. Open Command Palette (F1)
+2. Select "Remote-Containers: Reopen Folder in Container"
+3. Choose from:
+   - MCP (default): Combined Python and TypeScript
+   - Python: Python development
+   - TypeScript: TypeScript/JavaScript development
+   - TeXLive: LaTeX document preparation
+
+### MCP Development
+
+When in the MCP environment, you can create a new project skeleton with:
+
+```bash
+mcp-init
+```
+
+This creates a FastAPI Python server and TypeScript client with example code.
+
 ### Region-Specific Configuration
 
 For users in regions with network restrictions:
@@ -60,19 +84,31 @@ npm run docker:global
 ```
 qi-v2-llm/
 ├── .devcontainer/                 # DevContainer configurations
-│   ├── devcontainer.json          # Root configuration
-│   ├── docker-compose.yml         # Multi-container orchestration
-│   ├── setup.sh                   # Setup script for user configuration
+│   ├── base/                      # Base image with common setup
 │   ├── python/                    # Python environment
 │   ├── typescript/                # TypeScript environment 
-│   └── texlive/                   # LaTeX environment
+│   ├── texlive/                   # LaTeX environment
+│   ├── mcp/                       # Model Context Protocol environment
+│   ├── devcontainer.json          # Root configuration
+│   ├── docker-compose.yml         # Multi-container orchestration
+│   └── setup.sh                   # Setup script for user configuration
 ├── python-workspace/              # Python code
 ├── typescript-workspace/          # TypeScript code
 ├── texlive-workspace/             # LaTeX documents
+├── mcp-workspace/                 # MCP (Python+TypeScript) code
+├── scripts/                       # Network and environment setup scripts
 └── docs/                          # Documentation
-    └── devop/
-        └── devcontainer.md        # DevContainer documentation
+    └── devop/                     # DevOps documentation
 ```
+
+## Architecture
+
+The environment uses a layered container structure:
+
+1. **Base image**: Ubuntu 24.10 with user setup and Oh My Zsh configuration
+2. **Specialized images**: Python, TypeScript, TeXLive, and MCP (combines Python and TypeScript)
+
+This approach ensures consistent user experience while minimizing duplication.
 
 ## License
 

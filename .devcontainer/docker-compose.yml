@@ -1,4 +1,17 @@
 services:
+  # Base image that other services depend on
+  base:
+    build:
+      context: ./base
+      dockerfile: Dockerfile
+      args:
+        USERNAME: "${LOCAL_USERNAME:-vscode}"
+        USER_UID: "${LOCAL_USER_UID:-1000}"
+        USER_GID: "${LOCAL_USER_GID:-1000}"
+    image: qi-v2-llm-base:latest
+    # Base is just for building, not for direct use
+    profiles: ["build-only"]
+
   typescript:
     build:
       context: . 
@@ -7,6 +20,7 @@ services:
         USERNAME: "${LOCAL_USERNAME:-vscode}"
         USER_UID: "${LOCAL_USER_UID:-1000}"
         USER_GID: "${LOCAL_USER_GID:-1000}"
+    image: qi-v2-llm-typescript:latest
     volumes:
       - ../typescript-workspace:/workspace:cached
     working_dir: /workspace
@@ -20,10 +34,9 @@ services:
         USERNAME: "${LOCAL_USERNAME:-vscode}"
         USER_UID: "${LOCAL_USER_UID:-1000}"
         USER_GID: "${LOCAL_USER_GID:-1000}"
+    image: qi-v2-llm-python:latest
     volumes:
-      # Mount to a fixed path instead of a username-dependent path
       - ../python-workspace:/workspace:cached
-    # Use a fixed working directory
     working_dir: /workspace
     network_mode: "host"
     command: sleep infinity
@@ -36,9 +49,28 @@ services:
         USERNAME: "${LOCAL_USERNAME:-vscode}"
         USER_UID: "${LOCAL_USER_UID:-1000}"
         USER_GID: "${LOCAL_USER_GID:-1000}"
+    image: qi-v2-llm-texlive:latest
     environment:
       - USER=${LOCAL_USERNAME:-vscode}
     volumes:
       - ../texlive-workspace:/workspace:cached
     working_dir: /workspace
+    command: sleep infinity
+    
+  # New MCP (Model Context Protocol) environment that combines Python and TypeScript
+  mcp:
+    build:
+      context: . 
+      dockerfile: ./mcp/Dockerfile
+      args:
+        USERNAME: "${LOCAL_USERNAME:-vscode}"
+        USER_UID: "${LOCAL_USER_UID:-1000}"
+        USER_GID: "${LOCAL_USER_GID:-1000}"
+    image: qi-v2-llm-mcp:latest
+    volumes:
+      - ../mcp-workspace:/workspace/mcp:cached
+    ports:
+      - "8000:8000" # For FastAPI server
+    working_dir: /workspace/mcp
+    network_mode: "host"
     command: sleep infinity

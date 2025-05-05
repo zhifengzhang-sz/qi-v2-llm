@@ -1,0 +1,62 @@
+{
+  "name": "MCP Development Environment",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "mcp",
+  "workspaceFolder": "/workspace/mcp",
+  "remoteUser": "${localEnv:LOCAL_USERNAME}",
+  "updateRemoteUserUID": true,
+
+  "containerEnv": {
+    "PYTHONPATH": "/workspace/mcp"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Python extensions
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "ms-python.debugpy",
+        "charliermarsh.ruff",
+        
+        // TypeScript extensions
+        "ms-vscode.vscode-typescript-tslint-plugin",
+        "esben.prettier-vscode",
+        
+        // General extensions
+        "shd101wyy.markdown-preview-enhanced",
+        "redhat.vscode-yaml",
+        "ktiays.aicursor"
+      ],
+      "settings": {
+        // Python settings
+        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "python.analysis.typeCheckingMode": "basic",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+          }
+        },
+        
+        // TypeScript settings
+        "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib",
+        "[typescript]": {
+          "editor.defaultFormatter": "esben.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        
+        // Terminal settings
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "/bin/zsh"
+          }
+        }
+      }
+    }
+  },
+  "postCreateCommand": "sudo chown -R $(id -u):$(id -g) /workspace"
+}

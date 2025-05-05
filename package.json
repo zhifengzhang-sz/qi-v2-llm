@@ -11,11 +11,13 @@
     "network:china": "npm run docker:china && npm run github:china",
     "network:global": "npm run docker:global && npm run github:global",
     "build": "cd .devcontainer && (docker compose build || docker-compose build)",
+    "build:base": "cd .devcontainer && (docker compose build base || docker-compose build base)",
     "start": "cd .devcontainer && (docker compose up -d || docker-compose up -d)",
     "stop": "cd .devcontainer && (docker compose down || docker-compose down)",
     "compose:install": "./scripts/install-compose.sh",
     "python": "cd .devcontainer && (docker compose run --rm python zsh || docker-compose run --rm python zsh)",
     "typescript": "cd .devcontainer && (docker compose run --rm typescript zsh || docker-compose run --rm typescript zsh)",
-    "texlive": "cd .devcontainer && (docker compose run --rm texlive zsh || docker-compose run --rm texlive zsh)"
+    "texlive": "cd .devcontainer && (docker compose run --rm texlive zsh || docker-compose run --rm texlive zsh)",
+    "mcp": "cd .devcontainer && (docker compose run --rm mcp zsh || docker-compose run --rm mcp zsh)"
   }
 }

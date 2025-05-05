@@ -1,71 +1,53 @@
-# .devcontainer/typescript/Dockerfile
-FROM node:23
+# TypeScript development container
+FROM qi-v2-llm-base:latest
 
-# Create a non-root user with sudo access
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=1000
+USER root
 
-# Install sudo and other tools
-RUN apt-get update && apt-get install -y sudo zsh git curl wget fonts-powerline bash-completion \
+# Install Node.js and npm
+RUN apt-get update && apt-get install -y \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
-# Handle the existing "node" user - either rename it or create a new user
-RUN if getent passwd node > /dev/null; then \
-    # If node user exists, rename it
-    usermod -l $USERNAME node && \
-    usermod -d /home/$USERNAME -m $USERNAME && \
-    groupmod -n $USERNAME node && \
-    echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && \
-    chmod 0440 /etc/sudoers.d/$USERNAME; \
-else \
-    # If node user doesn't exist, create our user
-    groupadd -g $USER_GID -o $USERNAME 2>/dev/null || groupmod -g $USER_GID $USERNAME && \
-    useradd -u $USER_UID -g $USER_GID -s /bin/zsh -m $USERNAME && \
-    echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && \
-    chmod 0440 /etc/sudoers.d/$USERNAME; \
-fi
+# Install n for managing Node.js versions
+RUN npm install -g n
 
-# Create zsh configuration directories
-RUN mkdir -p /etc/zsh/zshrc.d
-
-# Set up Oh My Zsh for root
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-
-# Configure zsh for the user
-RUN mkdir -p /home/$USERNAME/.oh-my-zsh && \
-    cp -r /root/.oh-my-zsh/* /home/$USERNAME/.oh-my-zsh/ && \
-    cp /root/.zshrc /home/$USERNAME/.zshrc && \
-    sed -i 's/\/root\/.oh-my-zsh/\/home\/'"$USERNAME"'\/.oh-my-zsh/g' /home/$USERNAME/.zshrc
-
-# Configure Oh My Zsh theme and plugins
-RUN sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/' /home/$USERNAME/.zshrc \
-    && sed -i 's/plugins=(git)/plugins=(git node npm)/' /home/$USERNAME/.zshrc
-
-# Create auto-completion setup
-RUN echo 'autoload -Uz compinit && compinit\n# Node/npm auto-completion' > /etc/zsh/zshrc.d/auto-completion.zsh
-
-# Create custom setup script
-RUN echo '# Custom environment setup\ntest-network() {\n  echo "Testing connectivity:"\n  ping -c 1 google.com\n}' > /etc/zsh/zshrc.d/custom-setup.zsh
-
-# Update .zshrc to source custom scripts
-RUN echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> /root/.zshrc && \
-    echo 'source /etc/zsh/zshrc.d/custom-setup.zsh' >> /home/$USERNAME/.zshrc && \
-    echo 'source /etc/zsh/zshrc.d/auto-completion.zsh' >> /root/.zshrc && \
-    echo 'source /etc/zsh/zshrc.d/auto-completion.zsh' >> /home/$USERNAME/.zshrc
-
-# Copy custom .zshrc file (path relative to context)
-COPY ./.zshrc /home/$USERNAME/.zshrc
+# Install latest stable version of Node.js using n
+RUN n stable
 
 # Install TypeScript globally
 RUN npm install -g typescript
 
-# Ensure proper ownership
+# Add Node.js/TypeScript specific plugins to Oh My Zsh configuration
+RUN sed -i 's/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/plugins=(git node npm zsh-autosuggestions zsh-syntax-highlighting)/' /root/.zshrc && \
+    sed -i 's/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/plugins=(git node npm zsh-autosuggestions zsh-syntax-highlighting)/' /home/$USERNAME/.zshrc
+
+# Add Node.js/TypeScript specific auto-completion
+RUN echo '# Node.js/TypeScript autocompletion\n\
+# npm completion\n\
+if type npm &>/dev/null; then\n\
+  eval "$(npm completion)"\n\
+fi\n\
+' >> /etc/zsh/zshrc.d/auto-completion.zsh
+
+# Add Node.js/TypeScript specific environment setup
+RUN echo '# Node.js/TypeScript environment setup\n\
+export NODE_PATH=$(npm root -g)\n\
+export PATH=$(npm bin -g):$PATH\n\
+\n\
+# Node.js/TypeScript aliases\n\
+alias tsc="npx tsc"\n\
+alias ts-node="npx ts-node"\n\
+' >> /etc/zsh/zshrc.d/typescript-setup.zsh
+
+# Update both root and user .zshrc files to source the TypeScript setup
+RUN echo 'source /etc/zsh/zshrc.d/typescript-setup.zsh' >> /root/.zshrc && \
+    echo 'source /etc/zsh/zshrc.d/typescript-setup.zsh' >> /home/$USERNAME/.zshrc
+
+# Make sure all files in the home directory are owned by the user
 RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
 
-# Set the default user
 USER $USERNAME
-ENV SHELL=/bin/zsh
+WORKDIR /workspace
 
-# Default command
 CMD ["zsh"]

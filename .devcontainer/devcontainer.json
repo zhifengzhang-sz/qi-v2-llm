@@ -1,22 +1,39 @@
 {
   "name": "Multi-Language Development Containers",
   "dockerComposeFile": "docker-compose.yml",
-  "service": "typescript", // Default service
-  "workspaceFolder": "/workspace",
+  "service": "mcp", // Default to MCP environment
+  "workspaceFolder": "/workspace/mcp",
   
   // Let VS Code handle user mapping
   "updateRemoteUserUID": true,
   
-  "settings": {
-    "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib"
+  "customizations": {
+    "vscode": {
+      "settings": {
+        // Python settings
+        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        
+        // TypeScript settings
+        "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib"
+      },
+      "extensions": [
+        // Python extensions
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        
+        // TypeScript extensions
+        "ms-vscode.vscode-typescript-tslint-plugin",
+        "esben.prettier-vscode",
+        
+        // LaTeX extensions
+        "James-Yu.latex-workshop",
+        
+        // General extensions
+        "shd101wyy.markdown-preview-enhanced",
+        "redhat.vscode-yaml",
+        "ktiays.aicursor"
+      ]
+    }
   },
-  "extensions": [
-    "ms-vscode.vscode-typescript-tslint-plugin",
-    "ms-python.python",
-    "James-Yu.latex-workshop",
-    "shd101wyy.markdown-preview-enhanced",
-    "redhat.vscode-yaml",
-    "ktiays.aicursor"
-  ],
-  "postCreateCommand": "npm install"
+  "postCreateCommand": "sudo chown -R $(id -u):$(id -g) /workspace"
 }
