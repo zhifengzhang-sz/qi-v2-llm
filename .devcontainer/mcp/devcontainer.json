@@ -23,10 +23,19 @@
         "ms-vscode.vscode-typescript-tslint-plugin",
         "esben.prettier-vscode",
         
+        // AI/Cursor extensions
+        "ktiays.aicursor",
+        "github.copilot",
+        "github.copilot-chat",
+        
+        // Time Series Visualization
+        "RandomFractalsInc.vscode-data-preview",
+        "grapecity.gc-excelviewer",
+        
         // General extensions
         "shd101wyy.markdown-preview-enhanced",
         "redhat.vscode-yaml",
-        "ktiays.aicursor"
+        "streetsidesoftware.code-spell-checker"
       ],
       "settings": {
         // Python settings
@@ -48,6 +57,21 @@
           "editor.formatOnSave": true
         },
         
+        // Jupyter settings for time series research
+        "jupyter.alwaysTrustNotebooks": true,
+        "jupyter.askForKernelRestart": false,
+        "jupyter.sendSelectionToInteractiveWindow": true,
+        
+        // AI/Cursor settings
+        "editor.inlineSuggest.enabled": true,
+        "github.copilot.enable": {
+          "*": true,
+          "plaintext": true,
+          "markdown": true,
+          "python": true,
+          "typescript": true
+        },
+        
         // Terminal settings
         "terminal.integrated.defaultProfile.linux": "zsh",
         "terminal.integrated.profiles.linux": {
@@ -58,5 +82,5 @@
       }
     }
   },
-  "postCreateCommand": "sudo chown -R $(id -u):$(id -g) /workspace"
+  "postCreateCommand": "sudo chown -R $(id -u):$(id -g) /workspace && echo 'export OPENAI_API_KEY=${OPENAI_API_KEY}' >> ~/.zshrc"
 }

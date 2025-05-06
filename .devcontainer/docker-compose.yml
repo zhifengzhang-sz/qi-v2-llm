@@ -57,7 +57,7 @@ services:
     working_dir: /workspace
     command: sleep infinity
     
-  # New MCP (Model Context Protocol) environment that combines Python and TypeScript
+  # Enhanced MCP (Model Context Protocol) environment with time series research and cursor integration
   mcp:
     build:
       context: . 
@@ -69,8 +69,31 @@ services:
     image: qi-v2-llm-mcp:latest
     volumes:
       - ../mcp-workspace:/workspace/mcp:cached
+      # Optional shared volume for datasets (uncomment if needed)
+      # - ../shared-data:/workspace/mcp/data/shared:cached
     ports:
-      - "8000:8000" # For FastAPI server
+      - "8000:8000"  # FastAPI server
+      - "8888:8888"  # Jupyter Notebook
+      - "3000:3000"  # TypeScript client app
+    environment:
+      - TZ=UTC
+      - PYTHONUNBUFFERED=1
+      - PYTHONIOENCODING=UTF-8
+      - NODE_ENV=development
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}  # For cursor integration
     working_dir: /workspace/mcp
-    network_mode: "host"
+    # Using bridge network instead of host for better container isolation and port mapping
+    # network_mode: "host"
+    networks:
+      - mcp-network
     command: sleep infinity
+    # Optional resource limits (uncomment if needed)
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '4'
+    #       memory: 8G
+
+networks:
+  mcp-network:
+    driver: bridge

@@ -1,6 +1,9 @@
 # Python development container
 FROM qi-v2-llm-base:latest
 
+# Get the username from build arg
+ARG USERNAME=vscode
+
 USER root
 
 # Install Python and related tools
@@ -23,7 +26,7 @@ RUN pip config set global.timeout 120 && \
 
 # Add Python-specific plugins to Oh My Zsh configuration
 RUN sed -i 's/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/plugins=(git python pip virtualenv zsh-autosuggestions zsh-syntax-highlighting)/' /root/.zshrc && \
-    sed -i 's/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/plugins=(git python pip virtualenv zsh-autosuggestions zsh-syntax-highlighting)/' /home/$USERNAME/.zshrc
+    sed -i 's/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/plugins=(git python pip virtualenv zsh-autosuggestions zsh-syntax-highlighting)/' /home/${USERNAME}/.zshrc
 
 # Add Python-specific auto-completion
 RUN echo '# Python autocompletion\n\
@@ -40,12 +43,12 @@ COPY ./python/python-setup.zsh /etc/zsh/zshrc.d/
 
 # Update both root and user .zshrc files to source the Python setup
 RUN echo 'source /etc/zsh/zshrc.d/python-setup.zsh' >> /root/.zshrc && \
-    echo 'source /etc/zsh/zshrc.d/python-setup.zsh' >> /home/$USERNAME/.zshrc
+    echo 'source /etc/zsh/zshrc.d/python-setup.zsh' >> /home/${USERNAME}/.zshrc
 
 # Change ownership of the virtual environment to the non-root user
-RUN chown -R $USERNAME:$USERNAME /opt/venv
+RUN chown -R ${USERNAME}:${USERNAME} /opt/venv
 
-USER $USERNAME
+USER ${USERNAME}
 WORKDIR /workspace
 
 CMD ["zsh"]
