@@ -23,6 +23,7 @@ services:
     image: qi-v2-llm-typescript:latest
     volumes:
       - ../typescript-workspace:/workspace:cached
+      - ../docs:/workspace/docs:cached
     working_dir: /workspace
     command: sleep infinity
 
@@ -37,6 +38,7 @@ services:
     image: qi-v2-llm-python:latest
     volumes:
       - ../python-workspace:/workspace:cached
+      - ../docs:/workspace/docs:cached
     working_dir: /workspace
     network_mode: "host"
     command: sleep infinity
@@ -54,6 +56,7 @@ services:
       - USER=${LOCAL_USERNAME:-vscode}
     volumes:
       - ../texlive-workspace:/workspace:cached
+      - ../docs:/workspace/docs:cached
     working_dir: /workspace
     command: sleep infinity
     
@@ -69,6 +72,7 @@ services:
     image: qi-v2-llm-mcp:latest
     volumes:
       - ../mcp-workspace:/workspace/mcp:cached
+      - ../docs:/workspace/mcp/docs:cached
       # Optional shared volume for datasets (uncomment if needed)
       # - ../shared-data:/workspace/mcp/data/shared:cached
     ports:
