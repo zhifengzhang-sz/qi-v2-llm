@@ -82,5 +82,5 @@
       }
     }
   },
-  "postCreateCommand": "sudo chown -R $(id -u):$(id -g) /workspace && echo 'export OPENAI_API_KEY=${OPENAI_API_KEY}' >> ~/.zshrc"
+  "postCreateCommand": "sudo chown -R $(id -u):$(id -g) /workspace && echo 'export OPENAI_API_KEY=${OPENAI_API_KEY}' >> ~/.zshrc && echo 'export DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}' >> ~/.zshrc"
 }

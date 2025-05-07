@@ -86,6 +86,8 @@ RUN pip install numpy pandas matplotlib scipy scikit-learn statsmodels \
 
 # Install the OpenAI library for cursor integration
 RUN pip install openai
+# Install DeepSeek library for API integration
+RUN pip install deepseek
 RUN npm install -g openai axios
 
 # Change ownership of the virtual environment to the non-root user
