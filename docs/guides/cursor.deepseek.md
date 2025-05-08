@@ -9,9 +9,10 @@ This guide provides step-by-step instructions for setting up and using Cursor wi
 3. [Understanding Cursor vs VS Code](#understanding-cursor-vs-vs-code)
 4. [Setting Up Your Environment](#setting-up-your-environment)
 5. [Configuring DeepSeek in Cursor](#configuring-deepseek-in-cursor)
-6. [Working with Cursor and Development Containers](#working-with-cursor-and-development-containers)
-7. [Advanced Usage Scenarios](#advanced-usage-scenarios)
-8. [Troubleshooting](#troubleshooting)
+6. [Using Alternative AI Models (Qwen3)](#using-alternative-ai-models)
+7. [Working with Cursor and Development Containers](#working-with-cursor-and-development-containers)
+8. [Advanced Usage Scenarios](#advanced-usage-scenarios)
+9. [Troubleshooting](#troubleshooting)
 
 ## Introduction
 
@@ -125,6 +126,51 @@ Scroll down to find the "AI Model Configuration" section and configure DeepSeek:
 ### 3. Save Your Configuration
 
 Click "Save" to apply the changes. Cursor will now use DeepSeek as your AI model for code suggestions and completions.
+
+## Using Alternative AI Models (Qwen3)
+
+This environment also supports using Qwen3 as an alternative to DeepSeek. Here's how to set it up:
+
+### 1. Set Up Your Qwen3 API Key
+
+Configure your DashScope API key for Qwen3:
+
+```bash
+npm run secrets:setup-qwen3
+```
+
+This script will prompt you for your DashScope API key and securely add it to your `.env` file.
+
+### 2. Test Your Qwen3 Configuration
+
+Verify that your DashScope API key is working correctly:
+
+```bash
+npm run qwen3:test
+```
+
+A successful test will show a response from the DashScope API.
+
+### 3. Configure Cursor to Use Qwen3
+
+You can configure Cursor to use Qwen3 instead of DeepSeek:
+
+- Open Cursor settings (File > Preferences > Settings)
+- Go to Extensions > Cursor
+- In the "AI Model Configuration" section:
+  - Set Provider: "Custom" or "Other"
+  - Model Name: `qwen3`
+  - Base URL: `https://dashscope.aliyuncs.com/v1`
+  - API Key: Enter your DashScope API key
+
+### 4. Switching Between Models
+
+Cursor allows you to configure multiple AI models and switch between them:
+
+- Click on the AI model name in the bottom right corner of Cursor
+- Select the model you want to use from the dropdown menu
+
+This flexibility allows you to choose the best model for each specific task.
 
 ## Working with Cursor and Development Containers
 
