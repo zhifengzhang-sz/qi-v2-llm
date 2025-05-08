@@ -14,10 +14,12 @@
     "build:base": "cd .devcontainer && (docker compose build base || docker-compose build base)",
     "start": "cd .devcontainer && (docker compose up -d || docker-compose up -d)",
     "stop": "cd .devcontainer && (docker compose down || docker-compose down)",
-    "compose:install": "./scripts/install-compose.sh",
+    "compose:install": "chmod +x scripts/install-compose.sh && ./scripts/install-compose.sh",
     "python": "cd .devcontainer && (docker compose run --rm python zsh || docker-compose run --rm python zsh)",
     "typescript": "cd .devcontainer && (docker compose run --rm typescript zsh || docker-compose run --rm typescript zsh)",
     "texlive": "cd .devcontainer && (docker compose run --rm texlive zsh || docker-compose run --rm texlive zsh)",
-    "mcp": "cd .devcontainer && (docker compose run --rm mcp zsh || docker-compose run --rm mcp zsh)"
+    "mcp": "cd .devcontainer && (docker compose run --rm mcp zsh || docker-compose run --rm mcp zsh)",
+    "secrets:setup-deepseek": "chmod +x scripts/setup-deepseek.sh && ./scripts/setup-deepseek.sh",
+    "deepseek:test": "cd .devcontainer && (docker compose run --rm -v $(cd .. && pwd)/scripts:/scripts mcp python /scripts/test-deepseek-api.py || docker-compose run --rm -v $(cd .. && pwd)/scripts:/scripts mcp python /scripts/test-deepseek-api.py)"
   }
 }

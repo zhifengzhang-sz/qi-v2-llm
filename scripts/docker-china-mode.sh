@@ -2,12 +2,9 @@
 
 echo '{
   "registry-mirrors": [
-    "https://docker.mirrors.ustc.edu.cn/",
-    "https://dockerhub.azk8s.cn/",
-    "https://docker.nju.edu.cn/",
-    "https://registry.docker-cn.com/",
-    "https://hub-mirror.c.163.com/",
-    "https://mirror.baidubce.com/"
+    "https://mirrors.aliyun.com/docker-ce/registry.txt",
+    "https://mirrors.tencent.com/docker-ce/registry.list",
+    "https://mirror.sjtu.edu.cn/docker/mirrors.json"
   ]
 }' | sudo tee /etc/docker/daemon.json
 

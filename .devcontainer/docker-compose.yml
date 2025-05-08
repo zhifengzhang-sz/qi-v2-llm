@@ -76,9 +76,9 @@ services:
       # Optional shared volume for datasets (uncomment if needed)
       # - ../shared-data:/workspace/mcp/data/shared:cached
     ports:
-      - "8000:8000"  # FastAPI server
-      - "8888:8888"  # Jupyter Notebook
-      - "3000:3000"  # TypeScript client app
+      - "8001:8000"  # FastAPI server on host port 8001
+      - "8889:8888"  # Jupyter Notebook now on host port 8889
+      - "3001:3000"  # TypeScript client app on host port 3001
     environment:
       - TZ=UTC
       - PYTHONUNBUFFERED=1

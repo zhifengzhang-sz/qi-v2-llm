@@ -40,289 +40,120 @@ This architecture ensures:
 - **Flexibility**: Specialized environments focus only on what they need
 - **Maintainability**: Updating shared components only requires changes to the base image
 
-## Configuration Details
-
-### Root Configuration
-
-The `.devcontainer/devcontainer.json` file defines the multi-container setup and now defaults to the MCP environment:
-
-```jsonc
-{
-  "name": "Multi-Language Development Containers",
-  "dockerComposeFile": "docker-compose.yml",
-  "service": "mcp", // Default to MCP environment
-  "workspaceFolder": "/workspace/mcp",
-  
-  // Let VS Code handle user mapping
-  "updateRemoteUserUID": true,
-  
-  "customizations": {
-    "vscode": {
-      "settings": {
-        // Python settings
-        "python.defaultInterpreterPath": "/opt/venv/bin/python",
-        
-        // TypeScript settings
-        "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib"
-      },
-      "extensions": [
-        // Python extensions
-        "ms-python.python",
-        "ms-toolsai.jupyter",
-        
-        // TypeScript extensions
-        "ms-vscode.vscode-typescript-tslint-plugin",
-        "esben.prettier-vscode",
-        
-        // LaTeX extensions
-        "James-Yu.latex-workshop",
-        
-        // General extensions
-        "shd101wyy.markdown-preview-enhanced",
-        "redhat.vscode-yaml",
-        "ktiays.aicursor"
-      ]
-    }
-  },
-  "postCreateCommand": "sudo chown -R $(id -u):$(id -g) /workspace"
-}
-```
-
-### Docker Compose
-
-The docker-compose.yml file orchestrates all container environments, with the base image being built first:
-
-```yaml
-services:
-  # Base image that other services depend on
-  base:
-    build:
-      context: ./base
-      dockerfile: Dockerfile
-      args:
-        USERNAME: "${LOCAL_USERNAME:-vscode}"
-        USER_UID: "${LOCAL_USER_UID:-1000}"
-        USER_GID: "${LOCAL_USER_GID:-1000}"
-    image: qi-v2-llm-base:latest
-    # Base is just for building, not for direct use
-    profiles: ["build-only"]
-
-  typescript:
-    depends_on:
-      - base
-    build:
-      context: . 
-      dockerfile: ./typescript/Dockerfile
-      args:
-        USERNAME: "${LOCAL_USERNAME:-vscode}"
-        USER_UID: "${LOCAL_USER_UID:-1000}"
-        USER_GID: "${LOCAL_USER_GID:-1000}"
-    volumes:
-      - ../typescript-workspace:/workspace:cached
-    working_dir: /workspace
-    command: sleep infinity
-
-  python:
-    depends_on:
-      - base
-    build: 
-      context: ./python
-      dockerfile: Dockerfile
-      args:
-        USERNAME: "${LOCAL_USERNAME:-vscode}"
-        USER_UID: "${LOCAL_USER_UID:-1000}"
-        USER_GID: "${LOCAL_USER_GID:-1000}"
-    volumes:
-      - ../python-workspace:/workspace:cached
-    working_dir: /workspace
-    network_mode: "host"
-    command: sleep infinity
-
-  texlive:
-    depends_on:
-      - base
-    build:
-      context: ./texlive
-      dockerfile: Dockerfile
-      args:
-        USERNAME: "${LOCAL_USERNAME:-vscode}"
-        USER_UID: "${LOCAL_USER_UID:-1000}"
-        USER_GID: "${LOCAL_USER_GID:-1000}"
-    volumes:
-      - ../texlive-workspace:/workspace:cached
-    working_dir: /workspace
-    command: sleep infinity
-
-  # MCP environment for Model Context Protocol development
-  mcp:
-    depends_on:
-      - base
-    build:
-      context: . 
-      dockerfile: ./mcp/Dockerfile
-      args:
-        USERNAME: "${LOCAL_USERNAME:-vscode}"
-        USER_UID: "${LOCAL_USER_UID:-1000}"
-        USER_GID: "${LOCAL_USER_GID:-1000}"
-    volumes:
-      - ../mcp-workspace:/workspace/mcp:cached
-    ports:
-      - "8000:8000" # For FastAPI server
-    working_dir: /workspace/mcp
-    network_mode: "host"
-    command: sleep infinity
-```
-
-### Dynamic User Configuration
-
-The setup.sh script dynamically captures the host user information and now also ensures the MCP workspace directory exists:
-
-```bash
-#!/bin/bash
-# Capture local user info
-LOCAL_USERNAME=$(whoami)
-LOCAL_USER_UID=$(id -u)
-LOCAL_USER_GID=$(id -g)
-
-# Create a .env file for docker-compose
-cat > .devcontainer/.env <<EOF
-LOCAL_USERNAME=$LOCAL_USERNAME
-LOCAL_USER_UID=$LOCAL_USER_UID
-LOCAL_USER_GID=$LOCAL_USER_GID
-EOF
-
-echo "Environment variables saved to .devcontainer/.env"
-
-# Create mcp-workspace directory if it doesn't exist
-if [ ! -d "../mcp-workspace" ]; then
-    echo "Creating mcp-workspace directory..."
-    mkdir -p ../mcp-workspace
-fi
-
-cd .devcontainer
-
-# Build the base image first
-echo "Building base image..."
-docker-compose build base
-
-# Then build the service containers
-echo "Building service containers..."
-docker-compose build
-
-echo "Containers built with user: $LOCAL_USERNAME ($LOCAL_USER_UID:$LOCAL_USER_GID)"
-```
-
-### Shell Configuration
-
-All environments use a consistent Oh My Zsh setup with the "gnzh" theme and helpful plugins:
-
-- `zsh-autosuggestions`: Command suggestions based on history
-- `zsh-syntax-highlighting`: Syntax highlighting for commands
-- Environment-specific plugins (python, npm, git, etc.)
-
-### MCP Development Environment
-
-The MCP environment combines Python and TypeScript capabilities and provides a specialized setup for Model Context Protocol development:
-
-- Python with FastAPI for server-side development
-- TypeScript for client-side development
-- Helpful `mcp-init` function to scaffold new MCP projects
-
-## Using the DevContainers
+## Environment Setup
 
 ### Initial Setup
 
-1. Run the setup script to capture your user information and build containers:
-   ```bash
-   npm run setup
-   ```
-
-2. If you're in a region with restricted Docker Hub access:
-   ```bash
-   npm run docker:china
-   ```
-   Otherwise, for global access:
-   ```bash
-   npm run docker:global
-   ```
-
-3. Open VS Code in the project directory:
-   ```bash
-   code .
-   ```
-
-4. Press F1 and select "Remote-Containers: Reopen in Container" (defaults to MCP)
-
-### Switching Between Environments
-
-You can switch between development environments in VS Code:
-
-1. Press F1 to open the Command Palette
-2. Select "Remote-Containers: Reopen Folder in Container..."
-3. Choose the appropriate workspace folder:
-   - mcp-workspace for combined Python and TypeScript development
-   - typescript-workspace for TypeScript-only development
-   - python-workspace for Python-only development
-   - texlive-workspace for LaTeX document development
-
-### Creating MCP Projects
-
-In the MCP environment, you can quickly create a new project skeleton:
+To set up the environment, run:
 
 ```bash
-mcp-init
+npm run setup
 ```
 
-This creates:
-- A Python FastAPI server with example endpoints
-- A TypeScript client with connection code
-- All necessary configuration files
+This script:
+1. Captures local user information
+2. Creates necessary configuration files
+3. Builds the base container image
+4. Builds all service containers (TypeScript, Python, TeXLive, and MCP)
 
-## Customization
+### Directory Structure
 
-### Adding Extensions
+The `.devcontainer` directory contains:
+- `devcontainer.json`: Main VS Code DevContainer configuration
+- `docker-compose.yml`: Container orchestration configuration
+- `setup.sh`: Environment setup script
+- Container-specific directories: `base`, `python`, `typescript`, `texlive`, `mcp`
 
-To add VS Code extensions to specific environments, modify the corresponding `devcontainer.json` file. For example:
+## Common Issues and Troubleshooting
 
-```jsonc
-"extensions": [
-  "ms-python.python",
-  "ms-toolsai.jupyter", 
-  "ms-python.vscode-pylance"
-]
+### Network Timeouts During Package Installation
+
+**Issue**: Package installation (especially for Python) times out during container build.
+
+**Solution**:
+1. Increase timeout values in the Dockerfile:
+   ```dockerfile
+   RUN pip config set global.timeout 300 && \
+       pip install --upgrade pip setuptools wheel
+   ```
+2. Use a closer mirror or proxy for package installation
+3. Split large package installation steps into multiple smaller steps
+
+### Docker Base Image Access Issues
+
+**Issue**: Unable to access Ubuntu base image or Docker Hub.
+
+**Solution**:
+1. Check your network connection to Docker Hub
+2. Use regional Docker mirrors (see `scripts/docker-china-mode.sh`)
+3. Verify Docker daemon is running and accessible
+4. Use a more stable base image version if needed
+
+### Directory Permission Issues
+
+**Issue**: Permission errors when accessing workspace directories.
+
+**Solution**:
+1. Make sure the `postCreateCommand` is correctly setting permissions:
+   ```json
+   "postCreateCommand": "sudo chown -R $(id -u):$(id -g) /workspace"
+   ```
+2. Check that user IDs in the container match your local user
+3. Verify that `.devcontainer/.env` contains correct `LOCAL_USER_UID` and `LOCAL_USER_GID`
+
+### Python Directory Structure Issues
+
+**Issue**: Python modules aren't found or directory structure causes errors.
+
+**Solution**:
+1. Ensure all parent directories are created before attempting to create files:
+   ```dockerfile
+   RUN mkdir -p /workspace/mcp/server/src/models && \
+       mkdir -p /workspace/mcp/server/src/data && \
+       mkdir -p /workspace/mcp/server/src/utils && \
+       mkdir -p /workspace/mcp/server/src/api
+   ```
+2. Use explicit individual `touch` commands for creating files
+3. Check ownership of directories with `chown`
+
+### Jupyter Notebook Integration
+
+**Issue**: Jupyter notebooks aren't accessible or don't work correctly.
+
+**Solution**:
+1. Ensure the Jupyter extension is installed in VS Code
+2. Verify that Jupyter packages are installed in the container
+3. Use the correct Python kernel path in notebook settings
+4. Check port forwarding (8888) is configured correctly in `docker-compose.yml`
+
+## Custom Functions
+
+The MCP environment includes several custom zsh functions to streamline development:
+
+- `mcp-init`: Initialize a new MCP project with server and client
+- `mcp-ts-init`: Initialize a time series research project
+- `mcp-cursor-init`: Set up Cursor AI integration
+
+Use these functions directly in the terminal after starting the MCP container.
+
+## Environment Variables
+
+Important environment variables used in the container setup:
+
+- `LOCAL_USERNAME`: Your local username (default: vscode)
+- `LOCAL_USER_UID`: Your local user ID (default: 1000)
+- `LOCAL_USER_GID`: Your local group ID (default: 1000)
+- `OPENAI_API_KEY`: Your OpenAI API key for Cursor integration (optional)
+
+These are automatically captured and stored in `.devcontainer/.env` during setup.
+
+## Rebuilding Containers
+
+If you need to rebuild containers after changes, use:
+
+```bash
+cd .devcontainer
+docker-compose build <service-name>
 ```
 
-### Modifying Environment Setup
-
-Each environment has dedicated setup files that can be modified:
-- `base/Dockerfile`: Common setup for all environments
-- `python/python-setup.zsh`: Python-specific configuration
-- `typescript/typescript-setup.zsh`: TypeScript-specific configuration
-- `mcp/mcp-setup.zsh`: MCP-specific functions and settings
-
-## Troubleshooting
-
-### Docker Connectivity Issues
-
-If you experience Docker Hub connectivity issues:
-
-1. Check your network connectivity
-2. Try switching between regional and global configurations:
-   ```bash
-   npm run network:china  # For China network
-   npm run network:global # For global network
-   ```
-3. Use the built-in test-network function in containers:
-   ```bash
-   test-network
-   ```
-
-### File Permission Issues
-
-If you encounter file permission problems, ensure:
-
-1. The setup script has run successfully
-2. User IDs match between host and container
-3. Volume mounts are working correctly
-
-For other issues, refer to the Docker and VS Code Remote-Containers documentation.
+Replace `<service-name>` with `base`, `python`, `typescript`, `texlive`, or `mcp`.

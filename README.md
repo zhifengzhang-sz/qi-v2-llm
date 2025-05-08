@@ -1,115 +1,143 @@
-# Multi-Language Development Containers for LLM
+# Quantum Intelligence (QI) - Multi-Language Development Environment
 
-A comprehensive development environment supporting TypeScript, Python, and LaTeX using VS Code DevContainers. Designed for consistent development experiences across team members and different network environments.
+This repository contains a comprehensive multi-language development environment for Quantum Intelligence projects, featuring containerized environments for Python, TypeScript, LaTeX, and Model Context Protocol (MCP) development.
 
 ## Features
 
-- **Multiple Language Support**: TypeScript, Python, LaTeX/TeXLive, and combined MCP environment
-- **Layered Architecture**: Common base image with specialized development environments
-- **Isolated Environments**: Consistent, containerized development setups
-- **Network Flexibility**: Tools for switching between global and region-specific Docker registries
-- **Enhanced Shell Experience**: Custom Oh My Zsh configuration with helpful plugins
-- **Dynamic User Mapping**: Container users match your host system user
-- **MCP Development**: Combined Python and TypeScript for Model Context Protocol development
+- **Multi-Container Development Environment:** Isolated development environments for different programming languages
+- **VS Code Integration:** Optimized for development with Visual Studio Code and DevContainers
+- **Pre-configured Tools:** Ready-to-use development tools and libraries for each language
+- **MCP Support:** Built-in support for Model Context Protocol research and development
+- **Time Series Analysis:** Tools for time series forecasting, analysis, and visualization
+
+## Prerequisites
+
+- Docker and Docker Compose
+- Visual Studio Code with Remote Development extension
+- Git
 
 ## Quick Start
 
-### Prerequisites
-
-- [Docker](https://www.docker.com/products/docker-desktop)
-- [Visual Studio Code](https://code.visualstudio.com/)
-- [Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-
-### Setup
-
-1. Clone the repository:
+1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/qi-v2-llm.git
+   git clone https://github.com/your-username/qi-v2-llm.git
    cd qi-v2-llm
    ```
 
-2. Install npm dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Run the setup script:
+2. Set up the development environment:
    ```bash
    npm run setup
    ```
 
-4. Open VS Code:
+3. Open the project in VS Code:
    ```bash
    code .
    ```
 
-5. Use Command Palette (F1) → "Remote-Containers: Reopen in Container"
+4. Use the "Reopen in Container" option when prompted by VS Code.
 
-### Environment Selection
+## AI Integration Setup
 
-By default, you'll open in the MCP (Model Context Protocol) environment. To use a specific environment:
+### Cursor with DeepSeek API
 
-1. Open Command Palette (F1)
-2. Select "Remote-Containers: Reopen Folder in Container"
-3. Choose from:
-   - MCP (default): Combined Python and TypeScript
-   - Python: Python development
-   - TypeScript: TypeScript/JavaScript development
-   - TeXLive: LaTeX document preparation
+This environment supports using DeepSeek AI models with Cursor:
 
-### MCP Development
+1. Set up your DeepSeek API key in the environment:
+   ```bash
+   npm run secrets:setup-deepseek
+   ```
 
-When in the MCP environment, you can create a new project skeleton with:
+2. Rebuild containers if they're already running:
+   ```bash
+   npm run stop
+   npm run start
+   ```
 
-```bash
-mcp-init
-```
+3. Test your DeepSeek configuration:
+   ```bash
+   npm run deepseek:test
+   ```
 
-This creates a FastAPI Python server and TypeScript client with example code.
+4. Configure Cursor to use DeepSeek:
+   - Open Cursor Settings → Extensions → Cursor
+   - Find "AI Model Configuration" section
+   - Set Model: "deepseek-coder"
+   - Set Base URL: "https://api.deepseek.com/v1"
+   - Set API Key: your DeepSeek API key
 
-### Region-Specific Configuration
+For more details, see the [Secret Management Guide](docs/devop/secret-management.md).
 
-For users in regions with network restrictions:
+### RAG and Agent Capabilities for Cryptocurrency Analysis
 
-```bash
-# Enable region-specific Docker mirrors
-npm run docker:china
+The MCP environment can be extended with Retrieval-Augmented Generation (RAG) and Agent capabilities for cryptocurrency market analysis:
 
-# Switch back to global configuration
-npm run docker:global
-```
+1. Open the MCP container:
+   ```bash
+   npm run mcp
+   ```
 
-## Project Structure
+2. Run the installation script:
+   ```bash
+   /workspace/mcp/install-rag-agent.sh
+   ```
 
-```
-qi-v2-llm/
-├── .devcontainer/                 # DevContainer configurations
-│   ├── base/                      # Base image with common setup
-│   ├── python/                    # Python environment
-│   ├── typescript/                # TypeScript environment 
-│   ├── texlive/                   # LaTeX environment
-│   ├── mcp/                       # Model Context Protocol environment
-│   ├── devcontainer.json          # Root configuration
-│   ├── docker-compose.yml         # Multi-container orchestration
-│   └── setup.sh                   # Setup script for user configuration
-├── python-workspace/              # Python code
-├── typescript-workspace/          # TypeScript code
-├── texlive-workspace/             # LaTeX documents
-├── mcp-workspace/                 # MCP (Python+TypeScript) code
-├── scripts/                       # Network and environment setup scripts
-└── docs/                          # Documentation
-    └── devop/                     # DevOps documentation
-```
+3. After installation, set up the environment:
+   ```bash
+   source /workspace/mcp/setup-rag-agent-env.sh
+   ```
 
-## Architecture
+4. Launch Jupyter Lab with the RAG and Agent examples:
+   ```bash
+   /workspace/mcp/launch-rag-agent.sh
+   ```
 
-The environment uses a layered container structure:
+For more details, see the [RAG and Agent Integration Guide](docs/guides/rag-agent-mcp-integration-guide.md).
 
-1. **Base image**: Ubuntu 24.10 with user setup and Oh My Zsh configuration
-2. **Specialized images**: Python, TypeScript, TeXLive, and MCP (combines Python and TypeScript)
+## Container Environments
 
-This approach ensures consistent user experience while minimizing duplication.
+### MCP Container (Default)
+The Model Context Protocol container combines Python and TypeScript development environments with specialized tools for LLM integration and time series analysis.
+
+### Python Container
+A Python-focused environment with scientific computing packages, Jupyter, and testing tools.
+
+### TypeScript Container
+A Node.js and TypeScript environment with modern JavaScript tooling.
+
+### TeXLive Container
+A LaTeX environment for document preparation with common LaTeX packages.
+
+## Troubleshooting
+
+### Network Issues During Setup
+If you encounter network timeouts during setup:
+
+- For Docker image access issues, check your network connection to Docker Hub
+- For Python package installation failures, you can modify the timeout in the Dockerfile
+- Use the provided scripts in `scripts/` directory to configure Docker and GitHub settings for your region
+
+### Container Build Failures
+If container building fails:
+
+1. Check if the base image built successfully
+2. Verify environment variables are correctly set in `.devcontainer/.env`
+3. Ensure Docker has sufficient resources allocated (memory/CPU)
+4. Try rebuilding individual containers:
+   ```bash
+   cd .devcontainer
+   docker-compose build <container-name>
+   ```
+
+## Directory Structure
+
+- `.devcontainer/`: Configuration for VS Code DevContainers
+- `docs/`: Documentation and guides
+- `mcp-workspace/`: Working directory for MCP development
+- `python-workspace/`: Working directory for Python development
+- `typescript-workspace/`: Working directory for TypeScript development
+- `texlive-workspace/`: Working directory for LaTeX documents
+- `scripts/`: Utility scripts for environment configuration
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+[MIT License](LICENSE)
