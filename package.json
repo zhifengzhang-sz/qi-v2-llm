@@ -1,9 +1,11 @@
 {
-  "name": "multi-language-dev-containers",
+  "name": "qi-v2-llm",
   "version": "1.0.0",
-  "description": "Multi-language development environment with VS Code DevContainers",
+  "description": "Qwen3 integration development environment",
+  "main": "index.js",
   "scripts": {
-    "setup": "chmod +x .devcontainer/setup.sh && ./.devcontainer/setup.sh",
+    "setup": "npm install && npm run setup:dependencies",
+    "setup:dependencies": "echo 'Setting up development dependencies'",
     "docker:china": "chmod +x scripts/docker-china-mode.sh && ./scripts/docker-china-mode.sh",
     "docker:global": "chmod +x scripts/docker-global-mode.sh && ./scripts/docker-global-mode.sh",
     "github:china": "chmod +x scripts/github-china-mode.sh && ./scripts/github-china-mode.sh",
@@ -20,6 +22,27 @@
     "texlive": "cd .devcontainer && (docker compose run --rm texlive zsh || docker-compose run --rm texlive zsh)",
     "mcp": "cd .devcontainer && (docker compose run --rm mcp zsh || docker-compose run --rm mcp zsh)",
     "secrets:setup-deepseek": "chmod +x scripts/setup-deepseek.sh && ./scripts/setup-deepseek.sh",
-    "deepseek:test": "cd .devcontainer && (docker compose run --rm -v $(cd .. && pwd)/scripts:/scripts mcp python /scripts/test-deepseek-api.py || docker-compose run --rm -v $(cd .. && pwd)/scripts:/scripts mcp python /scripts/test-deepseek-api.py)"
-  }
+    "secrets:setup-qwen3": "chmod +x scripts/setup-qwen3.sh && ./scripts/setup-qwen3.sh",
+    "deepseek:test": "cd .devcontainer && (docker compose run --rm -v $(cd .. && pwd)/scripts:/scripts mcp python /scripts/test-deepseek-api.py || docker-compose run --rm -v $(cd .. && pwd)/scripts:/scripts mcp python /scripts/test-deepseek-api.py)",
+    "qwen3:test": "cd .devcontainer && (docker compose run --rm -v $(cd .. && pwd)/scripts:/scripts mcp python /scripts/test-qwen3-api.py || docker-compose run --rm -v $(cd .. && pwd)/scripts:/scripts mcp python /scripts/test-qwen3-api.py)",
+    "test:qwen3-235b": "python3 scripts/test-qwen3-235b-api.py --api-key $DASHSCOPE_API_KEY --api-base $DASHSCOPE_API_BASE",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "openai": "^3.2.1",
+    "alibabacloud-dashscope-2023-05-15": "^1.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.28.0",
+    "prettier": "^2.7.1",
+    "jest": "^29.2.4",
+    "supertest": "^4.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "private": true
 }
