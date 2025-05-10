@@ -31,7 +31,7 @@ First, set up the QI development environment:
 
 ```bash
 # Clone the repository (if you haven't already)
-git clone https://github.com/your-username/qi-v2-llm.git
+git clone https://github.com/zhifengzhang-sz/qi-v2-llm.git
 cd qi-v2-llm
 
 # Install dependencies

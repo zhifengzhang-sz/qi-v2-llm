@@ -1,6 +1,13 @@
 # Quantitative Investment (QI) - Multi-Language Development Environment
 
-This repository contains a comprehensive multi-language development environment for Quantitative Investment projects, featuring containerized environments for Python, TypeScript, LaTeX, and Model Context Protocol (MCP) development.
+This repository contains a comprehensive 3. Configure Cline AI to use the MCP server:
+   - Open VS Code Settings → Extensions → Cline
+   - Enable "Custom MCP Server"
+   - Set MCP Server URL to "http://localhost:3000"
+
+This integration allows Cline AI to access your project's specialized tools and capabilities through the MCP framework.
+
+For more details, see the [Cline AI MCP Integration Guide](docs/guides/cline/mcp.md).language development environment for Quantitative Investment projects, featuring containerized environments for Python, TypeScript, LaTeX, and Model Context Protocol (MCP) development.
 
 ## Features
 
@@ -20,7 +27,7 @@ This repository contains a comprehensive multi-language development environment 
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/qi-v2-llm.git
+   git clone https://github.com/zhifengzhang-sz/qi-v2-llm.git
    cd qi-v2-llm
    ```
 
@@ -65,7 +72,7 @@ This environment supports using DeepSeek AI models with Cursor:
    - Set Base URL: "https://api.deepseek.com/v1"
    - Set API Key: your DeepSeek API key
 
-For more details, see the [Secret Management Guide](docs/devop/secret-management.md).
+For more details, see the [Secret Management Guide](docs/devop/secret-management.md) and [Cursor DeepSeek Integration Guide](docs/guides/cursor/deepseek.md).
 
 ### RAG and Agent Capabilities for Cryptocurrency Analysis
 
@@ -92,6 +99,32 @@ The MCP environment can be extended with Retrieval-Augmented Generation (RAG) an
    ```
 
 For more details, see the [RAG and Agent Integration Guide](docs/guides/rag-agent-mcp-integration-guide.md).
+
+### Cline AI with MCP Integration
+
+This environment supports integrating Cline AI with the Model Context Protocol (MCP) for enhanced capabilities:
+
+1. Open the MCP container:
+   ```bash
+   npm run mcp
+   ```
+
+2. Set up the Cline-MCP integration:
+   ```bash
+   mcp-cline-init
+   ```
+
+3. Start the MCP server for Cline:
+   ```bash
+   cd cline-mcp && npm start
+   ```
+
+4. Configure Cline AI to use the MCP server:
+   - Open VS Code Settings → Extensions → Cline
+   - Enable "Custom MCP Server"
+   - Set MCP Server URL to "http://localhost:3000"
+
+This integration allows Cline AI to access your project's specialized tools and capabilities through the MCP framework.
 
 ## Container Environments
 

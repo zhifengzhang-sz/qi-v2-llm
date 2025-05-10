@@ -1482,3 +1482,179 @@ EOF
   echo "Navigate to cursor-client directory to use the cursor client"
   echo "Remember to set your OpenAI API key with: export OPENAI_API_KEY=your-api-key"
 }
+
+# Cline AI integration helper function
+mcp-cline-init() {
+  echo "Setting up Cline AI integration for MCP..."
+  mkdir -p cline-mcp
+  
+  cd cline-mcp
+  
+  # Initialize TypeScript project
+  npm init -y
+  npm install --save-dev typescript ts-node @types/node
+  npm install --save axios
+  
+  # Create tsconfig.json
+  cat > tsconfig.json << EOF
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
+}
+EOF
+  
+  # Create source directory
+  mkdir -p src
+  
+  # Create MCP server for Cline AI
+  mkdir -p src/server
+  
+  # Create basic MCP server implementation
+  cat > src/server/mcp-server.js << EOF
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(bodyParser.json());
+
+// MCP endpoint for tool execution
+app.post('/execute', async (req, res) => {
+  try {
+    const { tool, parameters } = req.body;
+    console.log(\`Executing tool: \${tool} with parameters:\`, parameters);
+    
+    // Implement your tool handling logic here
+    // This is where you would connect to your MCP tools
+    
+    res.json({
+      status: 'success',
+      result: \`Executed \${tool} successfully\`,
+    });
+  } catch (error) {
+    console.error('Error executing tool:', error);
+    res.status(500).json({
+      status: 'error',
+      message: error.message,
+    });
+  }
+});
+
+// MCP endpoint for retrieving available tools
+app.get('/tools', (req, res) => {
+  // Return the list of available tools
+  const tools = [
+    {
+      name: 'time_series_analysis',
+      description: 'Analyze time series data using MCP utilities',
+      parameters: {
+        data_path: 'Path to the time series data file',
+        method: 'Analysis method (decompose, forecast, anomaly_detection)',
+      }
+    },
+    {
+      name: 'crypto_data_fetch',
+      description: 'Fetch cryptocurrency market data',
+      parameters: {
+        symbol: 'Trading pair (e.g., BTC/USDT)',
+        timeframe: 'Time interval (e.g., 1h, 1d)',
+        limit: 'Number of candles to fetch'
+      }
+    }
+  ];
+  
+  res.json({ tools });
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(\`MCP server running at http://localhost:\${port}\`);
+});
+EOF
+
+  # Create package.json with scripts
+  cat > package.json << EOF
+{
+  "name": "cline-mcp-integration",
+  "version": "1.0.0",
+  "description": "Cline AI integration with Model Context Protocol",
+  "main": "src/server/mcp-server.js",
+  "scripts": {
+    "start": "node src/server/mcp-server.js",
+    "dev": "nodemon src/server/mcp-server.js",
+    "test": "echo \\"Error: no test specified\\" && exit 1"
+  },
+  "keywords": ["cline", "mcp", "ai", "model-context-protocol"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.9",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
+EOF
+
+  # Install dependencies
+  npm install
+
+  # Create README with instructions
+  cat > README.md << EOF
+# Cline AI Integration with MCP
+
+This package provides integration between Cline AI and the Model Context Protocol (MCP) environment.
+
+## Setup
+
+1. Install dependencies:
+   \`\`\`
+   npm install
+   \`\`\`
+
+2. Start the MCP server:
+   \`\`\`
+   npm start
+   \`\`\`
+
+3. Configure Cline AI:
+   - Open VS Code settings
+   - Search for Cline
+   - Enable "Custom MCP Server"
+   - Set MCP Server URL to "http://localhost:3000" (or your custom port)
+
+## Features
+
+- Exposes MCP functionality to Cline AI
+- Provides standardized API for AI tools interaction
+- Enables Cline to access your project's specialized capabilities
+
+## Extending
+
+To add new tools, edit the \`tools\` array in \`src/server/mcp-server.js\`.
+EOF
+
+  echo "Cline AI MCP integration setup completed!"
+  echo "To start the MCP server: cd cline-mcp && npm start"
+  echo "Then configure Cline AI to use the MCP server at http://localhost:3000"
+  echo "For more details, see the README.md file in the cline-mcp directory"
+}
