@@ -18,7 +18,7 @@ This guide provides step-by-step instructions for setting up and using Cursor wi
 
 Cursor is an AI-powered code editor built on VS Code's codebase that enhances your development experience with intelligent code suggestions, natural language processing, and deep code understanding. By integrating Cursor with DeepSeek, you gain access to powerful AI capabilities while maintaining the familiar VS Code-like environment.
 
-This guide will help you set up and use this powerful combination of tools within the Quantum Intelligence (QI) development environment.
+This guide will help you set up and use this powerful combination of tools within the Quantitative Investment (QI) development environment.
 
 ## Prerequisites
 

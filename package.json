@@ -1,7 +1,7 @@
 {
   "name": "qi-v2-llm",
   "version": "1.0.0",
-  "description": "Qwen3 integration development environment",
+  "description": "Quantitative Investment development environment with Qwen3 integration",
   "main": "index.js",
   "scripts": {
     "setup": "npm install && npm run setup:dependencies",

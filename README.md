@@ -1,6 +1,6 @@
-# Quantum Intelligence (QI) - Multi-Language Development Environment
+# Quantitative Investment (QI) - Multi-Language Development Environment
 
-This repository contains a comprehensive multi-language development environment for Quantum Intelligence projects, featuring containerized environments for Python, TypeScript, LaTeX, and Model Context Protocol (MCP) development.
+This repository contains a comprehensive multi-language development environment for Quantitative Investment projects, featuring containerized environments for Python, TypeScript, LaTeX, and Model Context Protocol (MCP) development.
 
 ## Features
 
